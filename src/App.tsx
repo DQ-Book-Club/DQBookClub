@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { initializeApp } from 'firebase/app'
+import { getAuth, signInWithEmailAndPassword, User } from 'firebase/auth'
+import React from 'react'
 import './App.css'
+import LoginForm from './components/LoginForm'
 
 const firebaseConfig = {
   apiKey: import.meta.env.FIREBASE_API_KEY,
@@ -10,26 +13,49 @@ const firebaseConfig = {
   appId: import.meta.env.FIREBASE_APP_ID,
   measurementId: import.meta.env.FIREBASE_MEASUREMENT_ID
 };
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app);
 
-function App() {
-  const [count, setCount] = useState(0)
+type AppState = {
+  count: number
+  user?: User
+}
 
-  return (
-    <div className="App">
+class App extends React.Component<{}, AppState> {
+  constructor(props: any) {
+    super(props)
+    this.state = {count:1 }
+  }
+
+  countUp(){
+    this.setState({count:this.state.count + 1})
+  }
+
+  async loginIn(email: string, password: string) {
+    console.log(email, password)
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      this.setState({user: userCredential.user })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
+  render() {
+    const visibleElement = !!this.state.user ? 
+      <p>Hello logged in {this.state.user.email}!</p> :
+      <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
+    
+    return (<div className="App">
       <h1>DQ Book Club</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <button onClick={() => this.countUp()}>
+          count is {this.state.count}
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        {visibleElement}
       </div>
-      <ul>
-        { Object.entries(firebaseConfig).map(([attr, val]) => <li>{attr}: {val}</li> )}
-      </ul>
-    </div>
-  )
+    </div>)
+  }
 }
 
 export default App
