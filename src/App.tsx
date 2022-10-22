@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth, signInWithEmailAndPassword, User } from 'firebase/auth'
+import { getAuth, signInWithEmailAndPassword, User, onAuthStateChanged } from 'firebase/auth'
 import React from 'react'
 import './App.css'
 import LoginForm from './components/LoginForm'
@@ -17,18 +17,20 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app);
 
 type AppState = {
-  count: number
-  user?: User
+  loadingUser: boolean
+  user?: User | null
 }
 
 class App extends React.Component<{}, AppState> {
   constructor(props: any) {
     super(props)
-    this.state = {count:1 }
+    this.state = { loadingUser: true }
   }
 
-  countUp(){
-    this.setState({count:this.state.count + 1})
+  componentDidMount(): void {
+    onAuthStateChanged(auth, (user) => {
+      this.setState({ user, loadingUser: false })
+    })
   }
 
   async loginIn(email: string, password: string) {
@@ -42,16 +44,18 @@ class App extends React.Component<{}, AppState> {
   }
   
   render() {
-    const visibleElement = !!this.state.user ? 
-      <p>Hello logged in {this.state.user.email}!</p> :
-      <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
+    let visibleElement: JSX.Element;
+    if (this.state.loadingUser) {
+      visibleElement = <p>Loading...</p>
+    } else if (this.state.user) {
+      visibleElement = <p>Hello logged in {this.state.user.email}!</p>
+    } else {
+      visibleElement = <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
+    }
     
     return (<div className="App">
       <h1>DQ Book Club</h1>
       <div className="card">
-        <button onClick={() => this.countUp()}>
-          count is {this.state.count}
-        </button>
         {visibleElement}
       </div>
     </div>)
