@@ -3,6 +3,7 @@ import { getAuth, signInWithEmailAndPassword, User, onAuthStateChanged } from 'f
 import React from 'react'
 import './App.css'
 import LoginForm from './components/LoginForm'
+import { PhotoDrawer } from './components/PhotoDrawer'
 
 const firebaseConfig = {
   apiKey: import.meta.env.FIREBASE_API_KEY,
@@ -48,14 +49,14 @@ class App extends React.Component<{}, AppState> {
     if (this.state.loadingUser) {
       visibleElement = <p>Loading...</p>
     } else if (this.state.user) {
-      visibleElement = <p>Hello logged in {this.state.user.email}!</p>
+      visibleElement = <PhotoDrawer />
     } else {
       visibleElement = <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
     }
     
-    return (<div className="App">
+    return (<div className="app">
       <h1>DQ Book Club</h1>
-        {visibleElement}
+      {visibleElement}
     </div>)
   }
 }
