@@ -55,9 +55,7 @@ class App extends React.Component<{}, AppState> {
     
     return (<div className="App">
       <h1>DQ Book Club</h1>
-      <div className="card">
         {visibleElement}
-      </div>
     </div>)
   }
 }
