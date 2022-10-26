@@ -1,21 +1,9 @@
-import { initializeApp } from 'firebase/app'
-import { getAuth, signInWithEmailAndPassword, User, onAuthStateChanged } from 'firebase/auth'
+import { signInWithEmailAndPassword, User, onAuthStateChanged } from 'firebase/auth'
 import React from 'react'
 import './App.css'
 import LoginForm from './components/LoginForm'
-import { PhotoDrawer } from './components/PhotoDrawer'
-
-const firebaseConfig = {
-  apiKey: import.meta.env.FIREBASE_API_KEY,
-  authDomain: import.meta.env.FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.FIREBASE_APP_ID,
-  measurementId: import.meta.env.FIREBASE_MEASUREMENT_ID
-};
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app);
+import Navigator from './components/Navigator'
+import { auth } from './services/firebaseServices'
 
 type AppState = {
   loadingUser: boolean
@@ -49,7 +37,7 @@ class App extends React.Component<{}, AppState> {
     if (this.state.loadingUser) {
       visibleElement = <p>Loading...</p>
     } else if (this.state.user) {
-      visibleElement = <PhotoDrawer />
+      visibleElement = <Navigator />
     } else {
       visibleElement = <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
     }

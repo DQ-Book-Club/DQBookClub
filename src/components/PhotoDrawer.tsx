@@ -1,13 +1,13 @@
 import { ChangeEvent, Component } from "react";
 import './PhotoDrawer.css';
 
-type FilePreview = File & { src: string }
+type FilePreview = Pick<File, 'name'> & { src: string }
 
 type PhotoDrawerState = {
   photosToUpload?: FilePreview[]
 }
 
-export class PhotoDrawer extends Component<{}, PhotoDrawerState> {
+export default class PhotoDrawer extends Component<{}, PhotoDrawerState> {
   constructor(props: any) {
     super(props)
 
@@ -22,9 +22,9 @@ export class PhotoDrawer extends Component<{}, PhotoDrawerState> {
   inspectPhotos(event: ChangeEvent<HTMLInputElement>) {
     if (!event.target.files) return
 
-    const photosToUpload = new Array<FilePreview>(event.target.files.length)
+    const photosToUpload = new Array<FilePreview>()
     for (let file of event.target.files) {
-      const filePreview: FilePreview = { ...file, src: './book.svg' }
+      const filePreview: FilePreview = { src: './book.svg', name: file.name }
       const reader = new FileReader()
       reader.onload = (e) => {
         if (e.target?.result && typeof e.target.result === 'string') {
@@ -44,7 +44,9 @@ export class PhotoDrawer extends Component<{}, PhotoDrawerState> {
     // Input for files is ugly. Hide it an wire it up to a button.
     return (
       <div className="photo-drawer">
-        {this.state.photosToUpload?.map(photo => <img key={photo.name} src={photo.src} />)}
+        {this.state.photosToUpload?.map(photo => (
+          <img draggable key={photo.name} src={photo.src} />
+        ))}
         <button className="upload-button" onClick={this.passClickToInput}>Upload</button>
         <input type="file" style={{ display: 'none' }} id="upload-photos"
                accept="image/*" multiple onChange={this.inspectPhotos} />
