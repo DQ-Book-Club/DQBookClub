@@ -7,5 +7,13 @@ export default defineConfig({
   server: {
     port: 8080
   },
-  envPrefix: 'FIREBASE_'
+  envPrefix: 'FIREBASE_',
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        notes: 'notes/index.html'
+      }
+    }
+  }
 })
