@@ -1,42 +1,49 @@
 import { ChangeEvent, Component } from "react";
 import './PhotoDrawer.css';
+import { storage, auth } from '../services/firebaseServices'
+import { ref, StorageReference, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
 
 type FilePreview = Pick<File, 'name'> & { src: string }
 
 type PhotoDrawerState = {
   photosToUpload?: FilePreview[]
+  userPhotoUrls?: string[]
 }
 
 export default class PhotoDrawer extends Component<{}, PhotoDrawerState> {
+  private userFolder: StorageReference 
   constructor(props: any) {
     super(props)
 
     this.inspectPhotos = this.inspectPhotos.bind(this)
     this.state = {}
+    this.userFolder = ref(storage, auth.currentUser?.uid)
+  }
+
+  async componentDidMount() {
+    const userImages = await listAll(this.userFolder)
+    const urls: string[] = []
+    const userPhotoUrls = await Promise.all(userImages.items.map((item) => getDownloadURL(item)))
+    this.setState({ userPhotoUrls })
   }
 
   passClickToInput() {
     document.getElementById('upload-photos')?.click()
   }
 
-  inspectPhotos(event: ChangeEvent<HTMLInputElement>) {
+  async inspectPhotos(event: ChangeEvent<HTMLInputElement>) {
     if (!event.target.files) return
 
-    const photosToUpload = new Array<FilePreview>()
+    const newUrls = []
     for (let file of event.target.files) {
-      const filePreview: FilePreview = { src: './book.svg', name: file.name }
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (e.target?.result && typeof e.target.result === 'string') {
-          filePreview.src = e.target.result
-          this.forceUpdate()
-        }
-      }
-      reader.readAsDataURL(file);
-      photosToUpload.push(filePreview)
+      let fileRef = ref(this.userFolder, file.name)
+      const uploadResult = await uploadBytes(fileRef, file)
+      newUrls.push(await getDownloadURL(uploadResult.ref))
     }
 
-    this.setState({photosToUpload})
+    this.setState({
+      userPhotoUrls: [...this.state.userPhotoUrls || [], ...newUrls]
+    })
   }
 
 
@@ -44,8 +51,8 @@ export default class PhotoDrawer extends Component<{}, PhotoDrawerState> {
     // Input for files is ugly. Hide it an wire it up to a button.
     return (
       <div className="photo-drawer">
-        {this.state.photosToUpload?.map(photo => (
-          <img draggable key={photo.name} src={photo.src} />
+        {this.state.userPhotoUrls?.map(photoUrl => (
+          <img draggable key={photoUrl} src={photoUrl} />
         ))}
         <button className="upload-button" onClick={this.passClickToInput}>Upload</button>
         <input type="file" style={{ display: 'none' }} id="upload-photos"
