@@ -2,6 +2,7 @@ import { signInWithEmailAndPassword, User, onAuthStateChanged } from 'firebase/a
 import React from 'react'
 import './App.css'
 import LoginForm from './components/LoginForm'
+import NavigationBar from './components/NavigationBar'
 import Navigator from './components/Navigator'
 import { auth } from './services/firebaseServices'
 
@@ -23,7 +24,6 @@ class App extends React.Component<{}, AppState> {
   }
 
   async loginIn(email: string, password: string) {
-    console.log(email, password)
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       this.setState({user: userCredential.user })
@@ -39,10 +39,11 @@ class App extends React.Component<{}, AppState> {
     } else if (this.state.user) {
       visibleElement = <Navigator />
     } else {
-      visibleElement = <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
+      visibleElement = <></>
     }
     
     return (<div className="app">
+      <NavigationBar login={(email, password) => this.loginIn(email, password)}/>
       <h1>DQ Book Club</h1>
       {visibleElement}
     </div>)
