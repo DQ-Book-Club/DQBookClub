@@ -36,14 +36,27 @@ a:hover {
 
 body {
   margin: 0;
+  padding-top: 2rem;
   display: flex;
 
   min-width: 320px;
   min-height: 100vh;
 }
 
-h1 {
+nav {
+  position: fixed;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  top: 0;
+  left: 0;
+
+  padding: 1rem;
+}
+
+nav > span {
   font-size: 2em;
+  font-weight: bold;
   line-height: 1.1;
   margin: 0;
 }

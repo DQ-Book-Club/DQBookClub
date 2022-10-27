@@ -43,7 +43,6 @@ class App extends React.Component<{}, AppState> {
     }
     
     return (<div className="app">
-      <h1>DQ Book Club</h1>
       {visibleElement}
     </div>)
   }
