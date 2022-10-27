@@ -44,7 +44,6 @@ class App extends React.Component<{}, AppState> {
     
     return (<div className="app">
       <NavigationBar login={(email, password) => this.loginIn(email, password)}/>
-      <h1>DQ Book Club</h1>
       {visibleElement}
     </div>)
   }

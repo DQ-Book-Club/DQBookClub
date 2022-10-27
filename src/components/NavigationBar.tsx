@@ -11,27 +11,27 @@ type NavigationBarState = {
 }
 
 export default class NavigationBar extends Component<NavigationBarProps, NavigationBarState> {
-    constructor(props: NavigationBarProps) {
-      super(props)
+  constructor(props: NavigationBarProps) {
+    super(props)
+  }
+
+  isLoggedIn() {
+    return getAuth().currentUser != null
+  }
+
+  render() {
+    let authComponent;
+    if (this.isLoggedIn()) {
+      authComponent = <LogoutButton />
+    } else {
+      authComponent = <LoginForm handleSubmit={this.props.login} />
     }
 
-    isLoggedIn() {
-      return getAuth().currentUser != null
-    }
-
-    render() {
-        let authComponent;
-        if (this.isLoggedIn()) {
-          authComponent = <LogoutButton />
-        } else {
-          authComponent = <LoginForm handleSubmit={this.props.login} />
-        }
-
-        return (
-          <nav>
-              <a href="/">DQ Book Club</a>
-              {authComponent}
-           </nav>
-        )
-    }
+    return (
+      <nav>
+        <img src="/bookclub.png" height="50" width="50" alt="DQ Book Club" />
+        {authComponent}
+      </nav>
+    )
+  }
 }
