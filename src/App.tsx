@@ -2,7 +2,7 @@ import { signInWithEmailAndPassword, User, onAuthStateChanged } from 'firebase/a
 import React from 'react'
 import './App.css'
 import LoginForm from './components/LoginForm'
-import Navigator from './components/Navigator'
+import ContestNavigator from './components/ContestNavigator'
 import { auth } from './services/firebaseServices'
 
 type AppState = {
@@ -37,7 +37,7 @@ class App extends React.Component<{}, AppState> {
     if (this.state.loadingUser) {
       visibleElement = <p>Loading...</p>
     } else if (this.state.user) {
-      visibleElement = <Navigator />
+      visibleElement = <ContestNavigator />
     } else {
       visibleElement = <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
     }
