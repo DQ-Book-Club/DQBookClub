@@ -17,6 +17,7 @@ import ContestList, { Contest } from "./ContestList";
 import './ContestDetails.css'
 import ContestSubmission from "./ContestSubmission";
 import ContestVotePanel, { type Rank } from "./ContestVotePanel";
+import ImageUploadButton from "./UploadButton";
 
 type ContestDetailsProps = {
   contest: Contest // The contest to show details for
@@ -55,6 +56,7 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     this.onRankClick = this.onRankClick.bind(this)
     this.onClickSubmission = this.onClickSubmission.bind(this)
     this.onResetVotesClick = this.onResetVotesClick.bind(this)
+    this.submitToContest = this.submitToContest.bind(this)
   }
 
   componentDidMount(): void {
@@ -87,10 +89,6 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     if (this.unsubscribeSubmissions) {
       this.unsubscribeSubmissions()
     }
-  }
-
-  passClickToInput() {
-    document.getElementById('upload-photos')?.click()
   }
 
   async submitToContest(event: ChangeEvent<HTMLInputElement>) {
@@ -147,9 +145,6 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     return (
       <div>
         <button onClick={this.props.onExit}>Back</button>
-        <button className="upload-button" onClick={this.passClickToInput}>Upload</button>
-        <input type="file" style={{ display: 'none' }} id="upload-photos"
-          accept="image/*" onChange={this.submitToContest.bind(this)} />
         <div className="photo-drawer">
           {this.state.submissions?.map(submission => (
             <ContestSubmission
@@ -165,6 +160,7 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
           onResetVotesClick={this.onResetVotesClick}
           votes={this.state.votes}
         />
+        <ImageUploadButton onUploadFile={this.submitToContest} />
       </div>
     )
   }
