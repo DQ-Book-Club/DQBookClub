@@ -18,6 +18,7 @@ import './ContestDetails.css'
 import ContestSubmission from "./ContestSubmission";
 import ContestVotePanel, { type Rank } from "./ContestVotePanel";
 import ImageUploadButton from "./UploadButton";
+import Viewer from "react-viewer";
 
 type ContestDetailsProps = {
   contest: Contest // The contest to show details for
@@ -37,6 +38,8 @@ export type Vote = {
 }
 
 type ContestDetailsState = {
+  showViewer: boolean
+  activeViewerIndex?: number
   submissions?: Submission[]
   selectedRank?: Rank
   votes?: Vote[]
@@ -50,7 +53,7 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
   constructor(props: any) {
     super(props)
 
-    this.state = {}
+    this.state = { showViewer: false }
     this.userFolder = ref(storage, auth.currentUser?.uid)
 
     this.onRankClick = this.onRankClick.bind(this)
@@ -105,21 +108,26 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     )
   }
 
-  async onClickSubmission({ submissionId: submissionId }: Submission) {
-    if (!this.state.selectedRank) return
+  async onClickSubmission({ submissionId }: Submission) {
+    if (!this.state.selectedRank) {
+      const activeViewerIndex = this.state.submissions?.findIndex(
+        submission => submission.submissionId === submissionId
+      )
+      this.setState({ showViewer: true, activeViewerIndex })
+    } else {
+      const rank = this.state.selectedRank
+      const voteId = `${auth.currentUser!.uid}-${rank}`
+      await setDoc(
+        doc(db, "contests", this.props.contest.id, "votes", voteId),
+        { rank, submissionId, userId: auth.currentUser!.uid }
+      )
 
-    const rank = this.state.selectedRank
-    const voteId = `${auth.currentUser!.uid}-${rank}`
-    await setDoc(
-      doc(db, "contests", this.props.contest.id, "votes", voteId),
-      { rank, submissionId, userId: auth.currentUser!.uid }
-    )
-
-    if (this.state.votes) {
-      this.setState({
-        selectedRank: undefined,
-        votes: [{voteId, rank, submissionId, userId: auth.currentUser!.uid } as Vote, ...this.state.votes!]
-      })
+      if (this.state.votes) {
+        this.setState({
+          selectedRank: undefined,
+          votes: [{ voteId, rank, submissionId, userId: auth.currentUser!.uid } as Vote, ...this.state.votes!]
+        })
+      }
     }
   }
 
@@ -145,6 +153,15 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     return (
       <div>
         <button onClick={this.props.onExit}>Back</button>
+
+        <Viewer
+          visible={this.state.showViewer}
+          onClose={() => this.setState({ showViewer: false })}
+          images={this.state.submissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
+          activeIndex={this.state.activeViewerIndex}
+          attribute={false} showTotal={false} noImgDetails={true}
+          noToolbar={true} scalable={false} drag={true}
+        />
         <div className="photo-drawer">
           {this.state.submissions?.map(submission => (
             <ContestSubmission
@@ -155,6 +172,8 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
             />
           ))}
         </div>
+
+
         <ContestVotePanel
           onRankClick={this.onRankClick}
           onResetVotesClick={this.onResetVotesClick}
