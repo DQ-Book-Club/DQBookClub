@@ -151,7 +151,7 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
 
   render() {
     return (
-      <div>
+      <div className="contest-details">
         <button onClick={this.props.onExit}>Back</button>
 
         <Viewer
