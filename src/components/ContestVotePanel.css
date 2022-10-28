@@ -1,0 +1,15 @@
+.goldButton {
+    background-color: #FFD700;
+}
+
+.silverButton {
+    background-color: silver;
+}
+
+.bronzeButton {
+    background-color: #CD7F32;
+}
+
+.selected {
+    border: 5px solid white;
+}

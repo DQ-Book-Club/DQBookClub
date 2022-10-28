@@ -1,21 +1,25 @@
 import { getDownloadURL, ref, StorageReference, uploadBytes } from "firebase/storage";
-import { collection, doc, onSnapshot, query, setDoc, Unsubscribe } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, Unsubscribe } from 'firebase/firestore'
 import { ChangeEvent, Component } from "react";
 import { auth, db, storage } from "../services/firebaseServices";
 import ContestList, { Contest } from "./ContestList";
 import './ContestDetails.css'
+import ContestSubmission from "./ContestSubmission";
+import ContestVotePanel, { type Rank } from "./ContestVotePanel";
 
 type ContestDetailsProps = {
   contest: Contest // The contest to show details for
   onExit: () => void
 }
 
-type Submission = {
+export type Submission = {
   imageUrl: string
+  submissionId: string
 }
 
 type ContestDetailsState = {
-  submissionUrls?: string[]
+  submissions?: Submission[]
+  selectedRank?: Rank
 }
 
 export default class ContestDetails extends Component<ContestDetailsProps, ContestDetailsState> {
@@ -28,12 +32,17 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
 
     this.state = {}
     this.userFolder = ref(storage, auth.currentUser?.uid)
+
+    this.onRankClick = this.onRankClick.bind(this)
+    this.onClickSubmission = this.onClickSubmission.bind(this)
   }
 
   componentDidMount(): void {
     this.unsubscribeSubmissions = onSnapshot(collection(db, 'contests', this.props.contest.id, 'submissions'), (submissionDocs) => {
       this.setState({
-        submissionUrls: submissionDocs.docs.map((doc) => (doc.data() as Submission).imageUrl)
+        submissions: submissionDocs.docs.map(
+          (doc) => ({submissionId: doc.id!, ...doc.data()} as Submission)
+        )
       })
     })
   }
@@ -62,6 +71,22 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     )
   }
 
+  async onClickSubmission({ submissionId: submissionId }: Submission) {
+    if (!this.state.selectedRank) return
+
+    const rank = this.state.selectedRank
+    const voteId = `${auth.currentUser!.uid}-${rank}`
+    await setDoc(
+      doc(db, "contests", this.props.contest.id, "votes", voteId),
+      { rank, submissionId, userId: auth.currentUser!.uid }
+    )
+  }
+
+  async onRankClick(rank: Rank) {
+    this.setState({selectedRank: rank})
+  }
+
+
   render() {
     return (
       <div>
@@ -70,10 +95,16 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
         <input type="file" style={{ display: 'none' }} id="upload-photos"
           accept="image/*" onChange={this.submitToContest.bind(this)} />
         <div className="photo-drawer">
-          {this.state.submissionUrls?.map(photoUrl => (
-            <img key={photoUrl} src={photoUrl} />
+          {this.state.submissions?.map(submission => (
+            <ContestSubmission
+              key={submission.submissionId}
+              contest={this.props.contest}
+              submission={submission}
+              onSubmissionClick={this.onClickSubmission}
+            />
           ))}
-      </div> 
+        </div>
+        <ContestVotePanel onRankClick={this.onRankClick} />
       </div>
     )
   }
