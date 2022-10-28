@@ -13,3 +13,9 @@
 .selected {
     border: 5px solid white;
 }
+
+.reset-votes-button {
+    position: absolute;
+    bottom: 0.5em;
+    left: 0.5em;
+}

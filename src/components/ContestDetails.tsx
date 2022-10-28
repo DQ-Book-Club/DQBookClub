@@ -1,5 +1,16 @@
 import { getDownloadURL, ref, StorageReference, uploadBytes } from "firebase/storage";
-import { collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, Unsubscribe } from 'firebase/firestore'
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  setDoc,
+  Unsubscribe,
+  where
+} from 'firebase/firestore'
 import { ChangeEvent, Component } from "react";
 import { auth, db, storage } from "../services/firebaseServices";
 import ContestList, { Contest } from "./ContestList";
@@ -17,9 +28,17 @@ export type Submission = {
   submissionId: string
 }
 
+export type Vote = {
+  voteId: string
+  rank: Rank
+  submissionId: string
+  userId: string
+}
+
 type ContestDetailsState = {
   submissions?: Submission[]
   selectedRank?: Rank
+  votes?: Vote[]
 }
 
 export default class ContestDetails extends Component<ContestDetailsProps, ContestDetailsState> {
@@ -35,6 +54,7 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
 
     this.onRankClick = this.onRankClick.bind(this)
     this.onClickSubmission = this.onClickSubmission.bind(this)
+    this.onResetVotesClick = this.onResetVotesClick.bind(this)
   }
 
   componentDidMount(): void {
@@ -44,6 +64,22 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
           (doc) => ({submissionId: doc.id!, ...doc.data()} as Submission)
         )
       })
+    })
+
+    var queryVotes = getDocs(
+      query(
+        collection(db, 'contests', this.props.contest.id, 'votes'),
+        where("userId", "==", auth.currentUser!.uid)
+      )
+    )
+    queryVotes.then((votes) => {
+      this.setState({
+        votes: votes.docs.map(
+          (doc) => ({voteId: doc.id!, ...doc.data()} as Vote)
+        )
+      })
+    }).catch((error) => {
+      console.log(error)
     })
   }
 
@@ -80,12 +116,32 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
       doc(db, "contests", this.props.contest.id, "votes", voteId),
       { rank, submissionId, userId: auth.currentUser!.uid }
     )
+
+    if (this.state.votes) {
+      this.setState({
+        selectedRank: undefined,
+        votes: [{voteId, rank, submissionId, userId: auth.currentUser!.uid } as Vote, ...this.state.votes!]
+      })
+    }
   }
 
   async onRankClick(rank: Rank) {
     this.setState({selectedRank: rank})
   }
 
+  async onResetVotesClick() {
+    if (!this.state.votes) {
+      return
+    }
+
+    for (const vote of this.state.votes) {
+      await deleteDoc(doc(db, "contests", this.props.contest.id, "votes", vote.voteId));
+    }
+
+    this.setState({
+      votes: []
+    })
+  }
 
   render() {
     const imageElement = conte
@@ -108,7 +164,11 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
             />
           ))}
         </div>
-        <ContestVotePanel onRankClick={this.onRankClick} />
+        <ContestVotePanel
+          onRankClick={this.onRankClick}
+          onResetVotesClick={this.onResetVotesClick}
+          votes={this.state.votes}
+        />
       </div>
     )
   }
