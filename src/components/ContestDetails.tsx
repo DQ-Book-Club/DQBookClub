@@ -63,12 +63,16 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
   }
 
   render() {
+    const imageElement = conte
     return (
       <div>
         <button onClick={this.props.onExit}>Back</button>
         <button className="upload-button" onClick={this.passClickToInput}>Upload</button>
         <input type="file" style={{ display: 'none' }} id="upload-photos"
           accept="image/*" onChange={this.submitToContest.bind(this)} />
+        <PhotoGallery submissionUrls={ } selectedPhoto={ }>
+          {this.state.submissionUrls?.map(image => <Image)}
+        </PhotoGallery>
         <div className="photo-drawer">
           {this.state.submissionUrls?.map(photoUrl => (
             <img key={photoUrl} src={photoUrl} />
