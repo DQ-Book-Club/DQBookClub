@@ -114,6 +114,13 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
       )
       this.setState({ showViewer: true, activeViewerIndex })
     } else {
+      const myVotes = this.currentUserVotes() ?? []
+      for (const vote of myVotes) {
+        if (vote.submissionId == submissionId) {
+          return
+        }
+      }
+
       const rank = this.state.selectedRank
       const voteId = `${auth.currentUser!.uid}-${rank}`
       await setDoc(
