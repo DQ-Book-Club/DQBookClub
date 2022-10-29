@@ -1,8 +1,7 @@
-import React, { Component } from "react";
-import { Submission, Vote } from "./ContestDetails";
-import './ContestVotePanel.css';
-import { Contest } from "./ContestList";
 import { Trophy } from "akar-icons";
+import { Component } from "react";
+import { Vote } from "./ContestDetails";
+import './ContestVotePanel.css';
 
 const RANKS = [
   "gold",
@@ -56,7 +55,7 @@ export default class ContestVotePanel extends Component<ContestVotePanelProps, C
 
   render() {
     return (
-      <React.Fragment>
+      <div>
         {RANKS.map((rank) =>
           this.showVote(rank) &&
           <button
@@ -67,7 +66,7 @@ export default class ContestVotePanel extends Component<ContestVotePanelProps, C
           </button>
         )}
         <button className="reset-votes-button" onClick={this.resetVotes}>Reset votes</button>
-      </React.Fragment>
+      </div>
     )
   }
 }
