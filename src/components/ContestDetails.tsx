@@ -19,10 +19,13 @@ import ContestSubmission from "./ContestSubmission";
 import ContestVotePanel, { type Rank } from "./ContestVotePanel";
 import ImageUploadButton from "./UploadButton";
 import Viewer from "react-viewer";
+import AdminControls from "./admin/AdminControls";
+import { ContestStatus } from "./constants/Constants";
 
 type ContestDetailsProps = {
   contest: Contest // The contest to show details for
   onExit: () => void
+  onSelectContestStatus: (status: ContestStatus) => void
 }
 
 export type Submission = {
@@ -154,6 +157,10 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
       <div className="contest-details">
         <button onClick={this.props.onExit}>Back</button>
 
+        <AdminControls
+          contestStatus={this.props.contest.status}
+          onSelectContestStatus={this.props.onSelectContestStatus}
+        />
         <Viewer
           visible={this.state.showViewer}
           onClose={() => this.setState({ showViewer: false })}
