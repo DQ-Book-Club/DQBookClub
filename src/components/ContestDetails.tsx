@@ -11,16 +11,17 @@ import {
   Unsubscribe,
   where
 } from 'firebase/firestore'
-import { ChangeEvent, Component } from "react";
+import React, { ChangeEvent, Component } from "react";
 import { auth, db, storage } from "../services/firebaseServices";
 import ContestList, { Contest } from "./ContestList";
 import './ContestDetails.css'
 import ContestSubmission from "./ContestSubmission";
-import ContestVotePanel, { type Rank } from "./ContestVotePanel";
+import ContestVotePanel from "./ContestVotePanel";
 import ImageUploadButton from "./UploadButton";
 import Viewer from "react-viewer";
 import AdminControls from "./admin/AdminControls";
-import { ContestStatus } from "./constants/Constants";
+import { ContestStatus, Rank } from "./constants/Constants";
+import ContestSubmissionResults from "./ContestSubmissionResults";
 
 type ContestDetailsProps = {
   contest: Contest // The contest to show details for
@@ -171,12 +172,22 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
         />
         <div className="photo-drawer">
           {this.state.submissions?.map(submission => (
-            <ContestSubmission
-              key={submission.submissionId}
-              contest={this.props.contest}
-              submission={submission}
-              onSubmissionClick={this.onClickSubmission}
-            />
+            <React.Fragment>
+              <ContestSubmission
+                key={submission.submissionId}
+                contest={this.props.contest}
+                submission={submission}
+                onSubmissionClick={this.onClickSubmission}
+              />
+              {
+                this.props.contest.status === "closed" &&
+                <ContestSubmissionResults
+                  key={submission.submissionId + "results"}
+                  submissionId={submission.submissionId}
+                  votes={this.state.votes}
+                />
+              }
+            </React.Fragment>
           ))}
         </div>
 

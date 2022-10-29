@@ -1,15 +1,9 @@
 import { Trophy } from "akar-icons";
 import { Component } from "react";
+import { Rank, RANKS } from "./constants/Constants";
 import { Vote } from "./ContestDetails";
 import './ContestVotePanel.css';
-
-const RANKS = [
-  "gold",
-  "silver",
-  "bronze"
-] as const
-
-export type Rank = typeof RANKS[number]
+import "./Trophy.css";
 
 type ContestVotePanelProps = {
   onRankClick: (rank: Rank) => void | Promise<void>
@@ -60,7 +54,7 @@ export default class ContestVotePanel extends Component<ContestVotePanelProps, C
           this.showVote(rank) &&
           <button
             key={rank}
-            className={rank + "Button " + (this.state.selectedRank === rank ? "selected" : "")}
+            className={rank + "Trophy " + (this.state.selectedRank === rank ? "selected" : "")}
             onClick={() => this.clickRankHandler(rank)}>
             <Trophy color="black" />
           </button>
