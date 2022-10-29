@@ -1,10 +1,7 @@
-import { setDoc, doc, collection, getDocs, getDoc } from "firebase/firestore";
-import { Key } from "react";
 import { Component } from "react";
-import { db, auth } from "../services/firebaseServices";
 import { Submission } from "./ContestDetails";
-import ContestVotePanel, { type Rank } from "./ContestVotePanel";
 import { Contest } from "./ContestList";
+import { Rank } from "./constants/Constants";
 
 type ContestSubmissionProps = {
   contest: Contest
