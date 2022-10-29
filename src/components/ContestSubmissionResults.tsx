@@ -28,10 +28,8 @@ export default class ContestSubmissionResults extends Component<ContestSubmissio
       <div>
         {RANKS.map((rank) =>
           <div className={rank + "Trophy "} key={rank}>
-            <h2 className="contest-results">
-              <Trophy color="black" />
-              {results[rank] ? results[rank] : 0}
-            </h2>
+            <Trophy color="black" />
+            <h2 className="contest-results">{results[rank] ?? 0}</h2>
           </div>
         )}
       </div>
