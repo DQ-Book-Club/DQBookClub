@@ -1,4 +1,7 @@
+import { doc, setDoc } from "firebase/firestore";
 import { Component } from "react";
+import { db } from "../services/firebaseServices";
+import { ContestStatus } from "./constants/Constants";
 import ContestDetails from "./ContestDetails";
 import ContestList, { Contest } from "./ContestList";
 
@@ -12,6 +15,7 @@ export default class ContestNavigator extends Component<{}, ContestNavigatorStat
     this.state = {}
     this.contestSelected = this.contestSelected.bind(this)
     this.contestExited = this.contestExited.bind(this)
+    this.onSelectContestStatus = this.onSelectContestStatus.bind(this)
   }
 
   contestSelected(contest: Contest) {
@@ -22,11 +26,36 @@ export default class ContestNavigator extends Component<{}, ContestNavigatorStat
     this.setState({ activeContest: undefined })
   }
 
+  async onSelectContestStatus(contestStatus: ContestStatus) {
+    if (!this.state.activeContest) {
+      return
+    }
+
+    this.setState({
+      activeContest: {
+        ...this.state.activeContest,
+        status: contestStatus,
+      }
+    })
+
+    await setDoc(
+      doc(db, "contests", this.state.activeContest.id),
+      {
+        name: this.state.activeContest.name,
+        status: contestStatus
+      }
+    )
+  }
+
   render() {
     if (!this.state.activeContest) {
       return <ContestList onSelectContest={this.contestSelected} />
     } else {
-      return <ContestDetails contest={this.state.activeContest} onExit={ this.contestExited } />
+      return <ContestDetails
+        contest={this.state.activeContest}
+        onSelectContestStatus={this.onSelectContestStatus}
+        onExit={ this.contestExited }
+      />
     }
   }
 }
