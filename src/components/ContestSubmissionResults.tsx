@@ -1,7 +1,6 @@
 import { Trophy } from "akar-icons";
 import { Component } from "react";
-import { RANKS } from "./constants/Constants";
-import { Vote } from "./ContestDetails";
+import { RANKS, Vote } from "./constants/Constants";
 import "./ContestSubmissionResults.css"
 import "./Trophy.css";
 
@@ -31,7 +30,7 @@ export default class ContestSubmissionResults extends Component<ContestSubmissio
           <div className={rank + "Trophy "} key={rank}>
             <h2 className="contest-results">
               <Trophy color="black" />
-              : {results[rank] ? results[rank] : 0}
+              {results[rank] ? results[rank] : 0}
             </h2>
           </div>
         )}

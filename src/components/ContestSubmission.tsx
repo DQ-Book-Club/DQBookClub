@@ -1,7 +1,5 @@
 import { Component } from "react";
-import { Submission } from "./ContestDetails";
-import { Contest } from "./ContestList";
-import { Rank } from "./constants/Constants";
+import { Contest, Rank, Submission } from "./constants/Constants";
 
 type ContestSubmissionProps = {
   contest: Contest

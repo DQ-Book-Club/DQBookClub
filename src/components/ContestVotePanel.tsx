@@ -1,7 +1,6 @@
 import { Trophy } from "akar-icons";
 import { Component } from "react";
-import { Rank, RANKS } from "./constants/Constants";
-import { Vote } from "./ContestDetails";
+import { Rank, RANKS, Vote } from "./constants/Constants";
 import './ContestVotePanel.css';
 import "./Trophy.css";
 

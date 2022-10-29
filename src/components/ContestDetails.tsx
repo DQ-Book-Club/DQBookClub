@@ -3,45 +3,28 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDoc,
-  getDocs,
   onSnapshot,
-  query,
   setDoc,
   Unsubscribe,
-  where
 } from 'firebase/firestore'
 import React, { ChangeEvent, Component } from "react";
 import { auth, db, storage } from "../services/firebaseServices";
-import ContestList, { Contest } from "./ContestList";
 import './ContestDetails.css'
 import ContestSubmission from "./ContestSubmission";
 import ContestVotePanel from "./ContestVotePanel";
 import ImageUploadButton from "./UploadButton";
 import Viewer from "react-viewer";
 import AdminControls from "./admin/AdminControls";
-import { ContestStatus, Rank } from "./constants/Constants";
+import { Contest, ContestStatus, Rank, Submission, Vote } from "./constants/Constants";
 import ContestSubmissionResults from "./ContestSubmissionResults";
 
 type ContestDetailsProps = {
-  contest: Contest // The contest to show details for
+  contestId: string // The contest to show details for
   onExit: () => void
-  onSelectContestStatus: (status: ContestStatus) => void
-}
-
-export type Submission = {
-  imageUrl: string
-  submissionId: string
-}
-
-export type Vote = {
-  voteId: string
-  rank: Rank
-  submissionId: string
-  userId: string
 }
 
 type ContestDetailsState = {
+  contest?: Contest
   showViewer: boolean
   activeViewerIndex?: number
   submissions?: Submission[]
@@ -51,8 +34,9 @@ type ContestDetailsState = {
 
 export default class ContestDetails extends Component<ContestDetailsProps, ContestDetailsState> {
   private userFolder: StorageReference 
-  private contestListener?: Unsubscribe
-  private unsubscribeSubmissions?: Unsubscribe
+  private unsubscribeContest: Unsubscribe = () => { }
+  private unsubscribeSubmissions: Unsubscribe = () => { }
+  private unsubscribeVotes: Unsubscribe = () => { }
 
   constructor(props: any) {
     super(props)
@@ -64,50 +48,61 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     this.onClickSubmission = this.onClickSubmission.bind(this)
     this.onResetVotesClick = this.onResetVotesClick.bind(this)
     this.submitToContest = this.submitToContest.bind(this)
+    this.onSelectContestStatus = this.onSelectContestStatus.bind(this)
   }
 
-  componentDidMount(): void {
-    this.unsubscribeSubmissions = onSnapshot(collection(db, 'contests', this.props.contest.id, 'submissions'), (submissionDocs) => {
-      this.setState({
-        submissions: submissionDocs.docs.map(
-          (doc) => ({submissionId: doc.id!, ...doc.data()} as Submission)
-        )
-      })
-    })
-
-    var queryVotes = getDocs(
-      query(
-        collection(db, 'contests', this.props.contest.id, 'votes'),
-        where("userId", "==", auth.currentUser!.uid)
-      )
+  async componentDidMount(): Promise<void> {
+    this.unsubscribeContest = onSnapshot(
+      doc(db, 'contests', this.props.contestId),
+      (contest) => {
+        this.setState({ contest: { id: contest.id, ...contest.data()} as Contest })
+      }
     )
-    queryVotes.then((votes) => {
-      this.setState({
-        votes: votes.docs.map(
-          (doc) => ({voteId: doc.id!, ...doc.data()} as Vote)
-        )
-      })
-    }).catch((error) => {
-      console.log(error)
-    })
+
+    this.unsubscribeSubmissions = onSnapshot(
+      collection(db, 'contests', this.props.contestId, 'submissions'),
+      (submissionDocs) => {
+        this.setState({
+          submissions: submissionDocs.docs.map(
+            (doc) => ({ submissionId: doc.id!, ...doc.data() } as Submission)
+          )
+        })
+      }
+    )
+
+    this.unsubscribeVotes = await onSnapshot(
+      collection(db, 'contests', this.props.contestId, 'votes'),
+      (votes) => {
+        this.setState({
+          votes: votes.docs.map(
+            (doc) => ({ voteId: doc.id!, ...doc.data() } as Vote)
+          )
+        })
+      }
+    )
+
   }
 
   componentWillUnmount(): void {
-    if (this.unsubscribeSubmissions) {
-      this.unsubscribeSubmissions()
-    }
+    this.unsubscribeContest()
+    this.unsubscribeSubmissions()
+    this.unsubscribeVotes()
+  }
+
+  currentUserVotes() {
+    return this.state.votes?.filter(vote => vote.userId === auth.currentUser!.uid)
   }
 
   async submitToContest(event: ChangeEvent<HTMLInputElement>) {
-    if (!event.target.files || event.target.files.length > 1) return
+    if (!event.target.files || event.target.files.length !== 1) return
 
     const file = event.target.files[0]
-    const fileRef = ref(this.userFolder, this.props.contest.id)
+    const fileRef = ref(this.userFolder, this.props.contestId)
     const uploadResult = await uploadBytes(fileRef, file)
     const imageUrl = await getDownloadURL(uploadResult.ref)
 
     await setDoc(
-      doc(db, "contests", this.props.contest.id, "submissions", auth.currentUser!.uid),
+      doc(db, "contests", this.props.contestId, "submissions", auth.currentUser!.uid),
       { imageUrl }
     )
   }
@@ -122,16 +117,13 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
       const rank = this.state.selectedRank
       const voteId = `${auth.currentUser!.uid}-${rank}`
       await setDoc(
-        doc(db, "contests", this.props.contest.id, "votes", voteId),
+        doc(db, "contests", this.props.contestId, "votes", voteId),
         { rank, submissionId, userId: auth.currentUser!.uid }
       )
 
-      if (this.state.votes) {
-        this.setState({
-          selectedRank: undefined,
-          votes: [{ voteId, rank, submissionId, userId: auth.currentUser!.uid } as Vote, ...this.state.votes!]
-        })
-      }
+      this.setState({
+        selectedRank: undefined,
+      })
     }
   }
 
@@ -140,17 +132,28 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
   }
 
   async onResetVotesClick() {
-    if (!this.state.votes) {
+    const votes = this.currentUserVotes()
+    if (!votes) {
       return
     }
 
-    for (const vote of this.state.votes) {
-      await deleteDoc(doc(db, "contests", this.props.contest.id, "votes", vote.voteId));
+    for (const vote of votes) {
+      await deleteDoc(doc(db, "contests", this.props.contestId, "votes", vote.voteId));
+    }
+  }
+
+  async onSelectContestStatus(contestStatus: ContestStatus) {
+    if (!this.state.contest) {
+      return
     }
 
-    this.setState({
-      votes: []
-    })
+    await setDoc(
+      doc(db, "contests", this.state.contest.id),
+      {
+        name: this.state.contest.name,
+        status: contestStatus
+      }
+    )
   }
 
   render() {
@@ -159,8 +162,8 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
         <button onClick={this.props.onExit}>Back</button>
 
         <AdminControls
-          contestStatus={this.props.contest.status}
-          onSelectContestStatus={this.props.onSelectContestStatus}
+          contestStatus={this.state.contest?.status || 'open' }
+          onSelectContestStatus={this.onSelectContestStatus}
         />
         <Viewer
           visible={this.state.showViewer}
@@ -175,12 +178,12 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
             <React.Fragment>
               <ContestSubmission
                 key={submission.submissionId}
-                contest={this.props.contest}
+                contest={this.state.contest!}
                 submission={submission}
                 onSubmissionClick={this.onClickSubmission}
               />
               {
-                this.props.contest.status === "closed" &&
+                this.state.contest?.status === "closed" &&
                 <ContestSubmissionResults
                   key={submission.submissionId + "results"}
                   submissionId={submission.submissionId}
@@ -191,13 +194,14 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
           ))}
         </div>
 
-
-        <ContestVotePanel
-          onRankClick={this.onRankClick}
-          onResetVotesClick={this.onResetVotesClick}
-          votes={this.state.votes}
-        />
-        <ImageUploadButton onUploadFile={this.submitToContest} />
+        { this.state.contest?.status === "open" && <ImageUploadButton onUploadFile={this.submitToContest} /> }
+        { this.state.contest?.status === "voting" && 
+          <ContestVotePanel
+            onRankClick={this.onRankClick}
+            onResetVotesClick={this.onResetVotesClick}
+            votes={this.currentUserVotes()}
+          />
+        }
       </div>
     )
   }

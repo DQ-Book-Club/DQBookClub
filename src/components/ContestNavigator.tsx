@@ -1,59 +1,46 @@
-import { doc, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, setDoc } from "firebase/firestore";
 import { Component } from "react";
 import { db } from "../services/firebaseServices";
-import { ContestStatus } from "./constants/Constants";
 import ContestDetails from "./ContestDetails";
-import ContestList, { Contest } from "./ContestList";
+import ContestList from "./ContestList";
+import { Contest } from "./constants/Constants";
 
 type ContestNavigatorState = {
-  activeContest?: Contest // The contest to show details for
+  contests: Contest[]
+  activeContestId?: string // The contest to show details for
 }
 
 export default class ContestNavigator extends Component<{}, ContestNavigatorState> {
   constructor(props: any) {
     super(props)
-    this.state = {}
+    this.state = {
+      contests: []
+    }
     this.contestSelected = this.contestSelected.bind(this)
     this.contestExited = this.contestExited.bind(this)
-    this.onSelectContestStatus = this.onSelectContestStatus.bind(this)
   }
 
-  contestSelected(contest: Contest) {
-    this.setState({ activeContest: contest })
+  async componentDidMount() {
+    const contestDocs = await getDocs(collection(db, 'contests'))
+    this.setState({
+      contests: contestDocs.docs.map(doc => ({ id: doc.id, ...doc.data() } as Contest))
+    })
+  }
+
+  contestSelected(contestId: string) {
+    this.setState({ activeContestId: contestId })
   }
 
   contestExited() {
-    this.setState({ activeContest: undefined })
-  }
-
-  async onSelectContestStatus(contestStatus: ContestStatus) {
-    if (!this.state.activeContest) {
-      return
-    }
-
-    this.setState({
-      activeContest: {
-        ...this.state.activeContest,
-        status: contestStatus,
-      }
-    })
-
-    await setDoc(
-      doc(db, "contests", this.state.activeContest.id),
-      {
-        name: this.state.activeContest.name,
-        status: contestStatus
-      }
-    )
+    this.setState({ activeContestId: undefined })
   }
 
   render() {
-    if (!this.state.activeContest) {
-      return <ContestList onSelectContest={this.contestSelected} />
+    if (!this.state.activeContestId) {
+      return <ContestList contests={this.state.contests} onSelectContest={this.contestSelected} />
     } else {
       return <ContestDetails
-        contest={this.state.activeContest}
-        onSelectContestStatus={this.onSelectContestStatus}
+        contestId={this.state.activeContestId}
         onExit={ this.contestExited }
       />
     }
