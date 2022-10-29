@@ -7,26 +7,11 @@ import "./Trophy.css";
 type ContestVotePanelProps = {
   onRankClick: (rank: Rank) => void | Promise<void>
   onResetVotesClick: () => void
+  selectedRank?: Rank
   votes: Vote[] | undefined
 }
 
-type ContestVotePanelState = {
-  selectedRank?: Rank
-}
-
-export default class ContestVotePanel extends Component<ContestVotePanelProps, ContestVotePanelState> {
-  constructor(props: ContestVotePanelProps) {
-    super(props)
-    this.state = {}
-
-    this.resetVotes = this.resetVotes.bind(this)
-  }
-
-  clickRankHandler(rank: Rank) {
-    this.setState({ selectedRank: rank })
-    this.props.onRankClick(rank)
-  }
-
+export default class ContestVotePanel extends Component<ContestVotePanelProps> {
   showVote(rank: Rank): boolean {
     if (!this.props.votes) {
       return false;
@@ -41,11 +26,6 @@ export default class ContestVotePanel extends Component<ContestVotePanelProps, C
     return true
   }
 
-  resetVotes() {
-    this.props.onResetVotesClick()
-    this.setState({ selectedRank: undefined })
-  }
-
   render() {
     return (
       <div>
@@ -53,12 +33,12 @@ export default class ContestVotePanel extends Component<ContestVotePanelProps, C
           this.showVote(rank) &&
           <button
             key={rank}
-            className={rank + "Trophy " + (this.state.selectedRank === rank ? "selected" : "")}
-            onClick={() => this.clickRankHandler(rank)}>
-            <Trophy color="black" />
+            className={rank + "Trophy"}
+            onClick={() => this.props.onRankClick(rank)}>
+            <Trophy color={this.props.selectedRank === rank ? "red" : "black"} />
           </button>
         )}
-        <button className="reset-votes-button" onClick={this.resetVotes}>Reset votes</button>
+        <button className="reset-votes-button" onClick={this.props.onResetVotesClick}>Reset votes</button>
       </div>
     )
   }

@@ -89,8 +89,14 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     this.unsubscribeVotes()
   }
 
-  currentUserVotes() {
-    return this.state.votes?.filter(vote => vote.userId === auth.currentUser!.uid)
+  currentUserVotes(submissionId?: string) {
+    var votes = this.state.votes?.filter(vote => vote.userId === auth.currentUser!.uid)
+
+    if (submissionId) {
+      votes = votes?.filter(vote => vote.submissionId === submissionId)
+    }
+
+    return votes
   }
 
   async submitToContest(event: ChangeEvent<HTMLInputElement>) {
@@ -147,6 +153,8 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     for (const vote of votes) {
       await deleteDoc(doc(db, "contests", this.props.contestId, "votes", vote.voteId));
     }
+
+    this.setState({ selectedRank: undefined })
   }
 
   async onSelectContestStatus(contestStatus: ContestStatus) {
@@ -166,7 +174,8 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
   render() {
     return (
       <div className="contest-details">
-        <button onClick={this.props.onExit}>Back</button>
+        <button className="back-button" onClick={this.props.onExit}>Back</button>
+        <h1>{this.state.contest?.name}</h1>
 
         <AdminControls
           contestStatus={this.state.contest?.status || 'open' }
@@ -182,10 +191,11 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
         />
         <div className="photo-drawer">
           {this.state.submissions?.map(submission => (
-            <React.Fragment>
+            <React.Fragment key={submission.submissionId}>
               <ContestSubmission
                 key={submission.submissionId}
                 contest={this.state.contest!}
+                rank={this.currentUserVotes(submission.submissionId)?.at(0)?.rank}
                 submission={submission}
                 onSubmissionClick={this.onClickSubmission}
               />
@@ -206,6 +216,7 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
           <ContestVotePanel
             onRankClick={this.onRankClick}
             onResetVotesClick={this.onResetVotesClick}
+            selectedRank={this.state.selectedRank}
             votes={this.currentUserVotes()}
           />
         }

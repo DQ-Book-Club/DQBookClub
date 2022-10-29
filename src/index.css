@@ -43,24 +43,6 @@ body {
   min-height: 100vh;
 }
 
-nav {
-  position: fixed;
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  top: 0;
-  left: 0;
-
-  padding: 1rem;
-}
-
-nav > span {
-  font-size: 2em;
-  font-weight: bold;
-  line-height: 1.1;
-  margin: 0;
-}
-
 button {
   border-radius: 8px;
   border: 1px solid transparent;

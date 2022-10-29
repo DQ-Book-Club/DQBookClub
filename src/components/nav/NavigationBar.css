@@ -1,0 +1,46 @@
+nav {
+  position: fixed;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  top: 0;
+  left: 0;
+
+  padding: 1rem 1rem 0.5rem 1rem;
+}
+
+nav span {
+  font-size: 2em;
+  font-weight: bold;
+  line-height: 1.1;
+  margin: 0;
+  bottom: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  a {
+    color: #213547;
+  }
+
+  .akar-icon {
+    color: #213547;
+  }
+
+  nav {
+    background-color: #EEE;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  a {
+    color: #E6E6E6;
+  }
+
+  .akar-icon {
+    color: #E6E6E6;
+  }
+
+  nav {
+    background-color: #323232;
+  }
+}
