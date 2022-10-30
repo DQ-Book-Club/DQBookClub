@@ -174,13 +174,15 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
   render() {
     return (
       <div className="contest-details">
-        <button className="back-button" onClick={this.props.onExit}>Back</button>
-        <h1>{this.state.contest?.name}</h1>
+        <div className="contest-title-container wide-flex-row">
+          <button className="back-button" onClick={this.props.onExit}>Back</button>
+          <h2>{this.state.contest?.name}</h2>
+          <AdminControls
+            contestStatus={this.state.contest?.status || 'open' }
+            onSelectContestStatus={this.onSelectContestStatus}
+            />
+        </div>
 
-        <AdminControls
-          contestStatus={this.state.contest?.status || 'open' }
-          onSelectContestStatus={this.onSelectContestStatus}
-        />
         <Viewer
           visible={this.state.showViewer}
           onClose={() => this.setState({ showViewer: false })}

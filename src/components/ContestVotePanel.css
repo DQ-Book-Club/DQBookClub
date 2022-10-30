@@ -1,15 +1,19 @@
-.goldButton {
-    background-color: #FFD700;
+.contest-vote-panel {
+    padding: 1rem;
+    border-radius: 8px;
 }
 
-.silverButton {
-    background-color: silver;
+.contest-vote-panel .trophy:not(.selected) {
+    background-color: transparent;
 }
 
-.bronzeButton {
-    background-color: #CD7F32;
+@media (prefers-color-scheme: dark) {
+    .contest-vote-panel {
+        background: #333;
+    }
 }
-
-.selected {
-    border: 5px solid white;
+@media (prefers-color-scheme: light) {
+    .contest-vote-panel {
+        background: #ddd;
+    }
 }

@@ -1,12 +1,12 @@
 .contest-list {
   display: flex;
   flex-wrap: wrap;
+  padding: 1rem 0;
 }
 
 .contest {
   height: 100px;
   width: 100px;
-  border: 1px solid #DDD ;
   margin-right: 1rem;
   margin-bottom: 1rem;
 }

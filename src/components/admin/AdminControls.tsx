@@ -36,16 +36,13 @@ export default class AdminControls extends Component<AdminControlsProps, AdminCo
   render() {
     if (this.state.userRole === ADMIN_ROLE) {
       return (
-        <div>
-          <h4>
-            Contest status:
-            <select value={this.props.contestStatus} onChange={this.onContestStatusSelect}>
-              {CONTEST_STATUS.map((status) =>
-                <option key={status} value={status}>{status}</option>
-              )}
-            </select>
-          </h4>
-        </div>
+        <label htmlFor="contest-status">
+          <select name="contest-status" value={this.props.contestStatus} onChange={this.onContestStatusSelect}>
+            {CONTEST_STATUS.map((status) =>
+              <option key={status} value={status}>{status}</option>
+            )}
+          </select>
+        </label>
       )
     }
   }

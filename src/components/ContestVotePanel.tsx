@@ -1,8 +1,7 @@
 import { Trophy } from "akar-icons";
 import { Component } from "react";
-import { Rank, RANKS, Vote } from "./constants/Constants";
+import { Rank, RANKS, RANK_COLORS, Vote } from "./constants/Constants";
 import './ContestVotePanel.css';
-import "./Trophy.css";
 
 type ContestVotePanelProps = {
   onRankClick: (rank: Rank) => void | Promise<void>
@@ -28,14 +27,18 @@ export default class ContestVotePanel extends Component<ContestVotePanelProps> {
 
   render() {
     return (
-      <div>
+      <div className="contest-vote-panel wide-flex-row">
         {RANKS.map((rank) =>
-          this.showVote(rank) &&
+          this.showVote(rank) ?
           <button
             key={rank}
-            className={rank + "Trophy"}
+            className={"trophy" + (this.props.selectedRank === rank ? " selected" : "")}
             onClick={() => this.props.onRankClick(rank)}>
-            <Trophy color={this.props.selectedRank === rank ? "red" : "black"} />
+              <Trophy color="black" fill={RANK_COLORS[rank]} />
+          </button>
+          :
+          <button key={rank} disabled className="trophy">
+            <Trophy color="black" />
           </button>
         )}
         <button className="reset-votes-button" onClick={this.props.onResetVotesClick}>Reset votes</button>

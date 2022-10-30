@@ -1,8 +1,7 @@
 import { Trophy } from "akar-icons";
 import { Component } from "react";
-import { RANKS, Vote } from "./constants/Constants";
+import { RANKS, RANK_COLORS, Vote } from "./constants/Constants";
 import "./ContestSubmissionResults.css"
-import "./Trophy.css";
 
 type ContestSubmissionResultsProps = {
   submissionId: string
@@ -26,12 +25,14 @@ export default class ContestSubmissionResults extends Component<ContestSubmissio
 
     return (
       <div>
-        {RANKS.map((rank) =>
-          <div className={rank + "Trophy "} key={rank}>
-            <Trophy color="black" />
-            <h2 className="contest-results">{results[rank] ?? 0}</h2>
-          </div>
-        )}
+        <div className="submission-results wide-flex-row">
+          {RANKS.map((rank) =>
+            <div className={rank + "Trophy "} key={rank}>
+              <Trophy color="black" fill={RANK_COLORS[rank]} />
+              <div className="contest-results">{results[rank] ?? 0}</div>
+            </div>
+          )}
+        </div>
       </div>
     )
   }

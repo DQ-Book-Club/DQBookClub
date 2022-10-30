@@ -1,3 +1,20 @@
+.submission-results {
+  padding: 1rem;
+  border-radius: 8px;
+  height: 80px;
+}
+
 .contest-results {
-  color: black;
+  font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+  .submission-results {
+      background: #333;
+  }
+}
+@media (prefers-color-scheme: light) {
+  .submission-results {
+      background: #ddd;
+  }
 }

@@ -12,6 +12,12 @@ export const RANKS = [
   "bronze"
 ] as const
 
+export const RANK_COLORS: Record<Rank, string> = {
+  gold: '#FFD700',
+  silver: '#AFAFAF',
+  bronze: '#CD7F32'
+}
+
 export type Rank = typeof RANKS[number]
 
 export type Contest = {

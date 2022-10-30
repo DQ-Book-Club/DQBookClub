@@ -54,6 +54,14 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
+.wide-flex-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 button:hover {
   border-color: #646cff;
 }
