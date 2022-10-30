@@ -64,7 +64,11 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
       (submissionDocs) => {
         this.setState({
           submissions: submissionDocs.docs.map(
-            (doc) => ({ submissionId: doc.id!, ...doc.data() } as Submission)
+            (doc) => ({
+              submissionId: doc.id!,
+              userId: doc.id!,
+              ...doc.data()
+            } as Submission)
           )
         })
       }
@@ -113,31 +117,45 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     )
   }
 
-  async onClickSubmission({ submissionId }: Submission) {
+  async onClickSubmission(submission: Submission) {
     if (!this.state.selectedRank) {
       const activeViewerIndex = this.state.submissions?.findIndex(
-        submission => submission.submissionId === submissionId
+        stateSubmission => stateSubmission.submissionId === submission.submissionId
       )
       this.setState({ showViewer: true, activeViewerIndex })
     } else {
-      const myVotes = this.currentUserVotes() ?? []
-      for (const vote of myVotes) {
-        if (vote.submissionId == submissionId) {
-          return
-        }
+      if (!this.allowVote(submission)) {
+        return
       }
 
       const rank = this.state.selectedRank
       const voteId = `${auth.currentUser!.uid}-${rank}`
       await setDoc(
         doc(db, "contests", this.props.contestId, "votes", voteId),
-        { rank, submissionId, userId: auth.currentUser!.uid }
+        {
+          rank,
+          submissionId: submission.submissionId,
+          userId: auth.currentUser!.uid
+        }
       )
 
       this.setState({
         selectedRank: undefined,
       })
     }
+  }
+
+  allowVote(submission: Submission) {
+    if (submission.userId === auth.currentUser!.uid) {
+      return false
+    }
+
+    const myVote = this.currentUserVotes(submission.submissionId) ?? []
+    if (myVote.length > 0) {
+      return false
+    }
+
+    return true
   }
 
   async onRankClick(rank: Rank) {
