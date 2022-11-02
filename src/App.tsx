@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword, User, onAuthStateChanged } from 'firebase/auth'
+import { signInWithEmailAndPassword, User, onAuthStateChanged, AuthError } from 'firebase/auth'
 import React from 'react'
 import './App.css'
 import LoginForm from './components/LoginForm'
@@ -8,6 +8,7 @@ import { auth } from './services/firebaseServices'
 type AppState = {
   loadingUser: boolean
   user?: User | null
+  error?: string
 }
 
 class App extends React.Component<{}, AppState> {
@@ -15,6 +16,7 @@ class App extends React.Component<{}, AppState> {
     super(props)
     this.state = { loadingUser: true }
   }
+
 
   componentDidMount(): void {
     onAuthStateChanged(auth, (user) => {
@@ -28,7 +30,9 @@ class App extends React.Component<{}, AppState> {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       this.setState({user: userCredential.user })
     } catch (error) {
+      let authError = error as AuthError
       console.log(error)
+      this.setState({error: "Please make sure E-Mail and Password are spelled correctly."})
     }
   }
   
@@ -41,9 +45,18 @@ class App extends React.Component<{}, AppState> {
     } else {
       visibleElement = <LoginForm handleSubmit={(email, password) => this.loginIn(email, password)} />
     }
+
+    // https://reactjs.org/docs/conditional-rendering.html#inline-if-with-logical--operator
+    let errorMessage: JSX.Element;
+    
+    
+    
     
     return (<div className="app">
       {visibleElement}
+       {this.state.error && <p className='error'>
+            {this.state.error}
+        </p>}
     </div>)
   }
 }

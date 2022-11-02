@@ -9,6 +9,12 @@
 .app {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
+}
+
+.error{
+  border-color: brown;
+  color:white;
+  background-color: crimson;
+  border-style: solid;
 }
