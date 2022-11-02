@@ -1,7 +1,7 @@
 import { collection, doc, getDocs, onSnapshot, setDoc } from "firebase/firestore";
 import { Component } from "react";
 import { db } from "../services/firebaseServices";
-import ContestDetails from "./ContestDetails";
+import ContestDetails from "./contestdetails/ContestDetails";
 import ContestList from "./ContestList";
 import { Contest } from "./constants/Constants";
 
