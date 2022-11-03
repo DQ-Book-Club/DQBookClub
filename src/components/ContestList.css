@@ -10,3 +10,12 @@
   margin-right: 1rem;
   margin-bottom: 1rem;
 }
+
+.contest-details details summary {
+  cursor: pointer;
+  text-align: left;
+}
+
+.contest-details details summary > * {
+  display: inline;
+}

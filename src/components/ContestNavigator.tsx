@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, onSnapshot, setDoc } from "firebase/firestore";
+import { collection, onSnapshot, Unsubscribe } from "firebase/firestore";
 import { Component } from "react";
 import { db } from "../services/firebaseServices";
 import ContestDetails from "./contestdetails/ContestDetails";
@@ -11,6 +11,8 @@ type ContestNavigatorState = {
 }
 
 export default class ContestNavigator extends Component<{}, ContestNavigatorState> {
+  private unsubscribeContests: Unsubscribe = () => { }
+
   constructor(props: any) {
     super(props)
     this.state = {
@@ -21,10 +23,16 @@ export default class ContestNavigator extends Component<{}, ContestNavigatorStat
   }
 
   async componentDidMount() {
-    const contestDocs = await getDocs(collection(db, 'contests'))
-    this.setState({
-      contests: contestDocs.docs.map(doc => ({ id: doc.id, ...doc.data() } as Contest))
-    })
+    this.unsubscribeContests = await onSnapshot(
+      collection(db, 'contests'),
+      (contests) => this.setState({
+        contests: contests.docs.map(doc => ({ id: doc.id, ...doc.data() } as Contest))
+      })
+    )
+  }
+
+  componentWillUnmount(): void {
+    this.unsubscribeContests()
   }
 
   contestSelected(contestId: string) {
