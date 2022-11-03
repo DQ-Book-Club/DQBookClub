@@ -27,7 +27,7 @@ export default class ContestList extends Component<ContestListProps> {
 
   renderDetails(contests: Contest[], status: ContestStatus) {
     return (
-      <details open={status === "open"} key={status + "details"}>
+      <details open={status !== "closed"} key={status + "details"}>
         <summary key={status + "summary"} className="summary">
           <h3>{this.capitalize(status)}</h3>
         </summary>
@@ -43,18 +43,18 @@ export default class ContestList extends Component<ContestListProps> {
   }
 
   render() {
-    const contestsByStatus: { [key: string]: Contest[] } = {}
+    let contestsByStatus: { [key in ContestStatus]?: Contest[] } = {};
     for (const contest of this.props.contests) {
       if (!contestsByStatus[contest.status]) {
         contestsByStatus[contest.status] = []
       }
-      contestsByStatus[contest.status].push(contest)
+      contestsByStatus[contest.status]!.push(contest)
     }
 
     return (
       <div className="contest-details">
         {CONTEST_STATUS.map(status => (
-          contestsByStatus[status] && this.renderDetails(contestsByStatus[status], status)
+          contestsByStatus[status] && this.renderDetails(contestsByStatus[status]!, status)
         ))
         }
       </div>
