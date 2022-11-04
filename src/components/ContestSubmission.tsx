@@ -9,22 +9,20 @@ type ContestSubmissionProps = {
   onSubmissionClick: (submission: Submission) => void | Promise<void>
 }
 
-export default class ContestSubmission extends Component<ContestSubmissionProps> {
-  getSubmissionImgClass() {
-    if (this.props.contest.status === "voting") {
-      return this.props.rank
+export default function ContestSubmission(props: ContestSubmissionProps) {
+  function getSubmissionImgClass() {
+    if (props.contest.status === "voting") {
+      return props.rank
     }
   }
 
-  render() {
-    return (
-      <div
-        className="contest-submission"
-        onClick={() => this.props.onSubmissionClick(this.props.submission)}
-      >
-        <img key={this.props.submission.submissionId} src={this.props.submission.imageUrl}
-          className={this.getSubmissionImgClass()}  />
-      </div>
-    )
-  }
+  return (
+    <div
+      className="contest-submission"
+      onClick={() => props.onSubmissionClick(props.submission)}
+    >
+      <img key={props.submission.submissionId} src={props.submission.imageUrl}
+        className={getSubmissionImgClass()}  />
+    </div>
+  )
 }
