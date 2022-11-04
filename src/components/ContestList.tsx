@@ -7,12 +7,17 @@ type ContestListProps = {
   onSelectContest: (contestId: string) => void
 }
 
-export default function ContestList(props: ContestListProps) {
-  function renderContestButton(contest: Contest) {
+export default class ContestList extends Component<ContestListProps> {
+  constructor(props: ContestListProps) {
+    super(props)
+    this.state = { list: [] }
+  }
+
+  renderContestButton(contest: Contest) {
     return (
       <button
         className="contest"
-        onClick={(event) => props.onSelectContest(contest.id)}
+        onClick={(event) => this.props.onSelectContest(contest.id)}
         key={contest.id}
       >
         {contest.name}
@@ -20,37 +25,39 @@ export default function ContestList(props: ContestListProps) {
     )
   }
 
-  function renderDetails(contests: Contest[], status: ContestStatus) {
+  renderDetails(contests: Contest[], status: ContestStatus) {
     return (
       <details open={status !== "closed"} key={status + "details"}>
         <summary key={status + "summary"} className="summary">
-          <h3>{capitalize(status)}</h3>
+          <h3>{this.capitalize(status)}</h3>
         </summary>
         <div className="contest-list" key={status + "div"}>
-          {contests.map(contest => renderContestButton(contest))}
+          {contests.map(contest => this.renderContestButton(contest))}
         </div>
       </details>
     )
   }
 
-  function capitalize(str: string) {
+  capitalize(str: string) {
     return str.at(0)?.toUpperCase() + str.substring(1).toLocaleLowerCase()
   }
 
-  let contestsByStatus: { [key in ContestStatus]?: Contest[] } = {};
-  for (const contest of props.contests) {
-    if (!contestsByStatus[contest.status]) {
-      contestsByStatus[contest.status] = []
-    }
-    contestsByStatus[contest.status]!.push(contest)
-  }
-
-  return (
-    <div className="contest-details">
-      {CONTEST_STATUS.map(status => (
-        contestsByStatus[status] && renderDetails(contestsByStatus[status]!, status)
-      ))
+  render() {
+    let contestsByStatus: { [key in ContestStatus]?: Contest[] } = {};
+    for (const contest of this.props.contests) {
+      if (!contestsByStatus[contest.status]) {
+        contestsByStatus[contest.status] = []
       }
-    </div>
-  )
+      contestsByStatus[contest.status]!.push(contest)
+    }
+
+    return (
+      <div className="contest-details">
+        {CONTEST_STATUS.map(status => (
+          contestsByStatus[status] && this.renderDetails(contestsByStatus[status]!, status)
+        ))
+        }
+      </div>
+    )
+  }
 }

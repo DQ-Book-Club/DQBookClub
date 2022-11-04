@@ -1,10 +1,14 @@
 import { File } from 'akar-icons'
+import { Component } from "react";
 import "./NavigationBar.css"
 
-const NavigationBar = () => (
-  <nav>
-    <span>DQ Book Club</span>
-    <a className="akar-icon" href="/notes/"><File /></a>
-  </nav>
-)
-export default NavigationBar
+export default class NavigationBar extends Component<{}> {
+  render() {
+    return (
+      <nav>
+        <span>DQ Book Club</span>
+        <a className="akar-icon" href="/notes/"><File /></a>
+      </nav>
+    )
+  }
+}
