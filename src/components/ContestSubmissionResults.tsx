@@ -8,32 +8,29 @@ type ContestSubmissionResultsProps = {
   votes?: Vote[]
 }
 
-export default class ContestSubmissionResults extends Component<ContestSubmissionResultsProps> {
-
-  render() {
-    var results: {[key: string]: number} = {}
-    if (this.props.votes) {
-      this.props.votes
-        .filter((vote) => vote.submissionId === this.props.submissionId)
-        .forEach((vote) => {
-          if (!results[vote.rank]) {
-            results[vote.rank] = 0
-          }
-          results[vote.rank]++
-        })
-    }
-
-    return (
-      <div>
-        <div className="submission-results wide-flex-row">
-          {RANKS.map((rank) =>
-            <div className={rank + "Trophy "} key={rank}>
-              <Trophy color="black" fill={RANK_COLORS[rank]} />
-              <div className="contest-results">{results[rank] ?? 0}</div>
-            </div>
-          )}
-        </div>
-      </div>
-    )
+export default function ContestSubmissionResults(props: ContestSubmissionResultsProps) {
+  var results: {[key: string]: number} = {}
+  if (props.votes) {
+    props.votes
+      .filter((vote) => vote.submissionId === props.submissionId)
+      .forEach((vote) => {
+        if (!results[vote.rank]) {
+          results[vote.rank] = 0
+        }
+        results[vote.rank]++
+      })
   }
+
+  return (
+    <div>
+      <div className="submission-results wide-flex-row">
+        {RANKS.map((rank) =>
+          <div className={rank + "Trophy "} key={rank}>
+            <Trophy color="black" fill={RANK_COLORS[rank]} />
+            <div className="contest-results">{results[rank] ?? 0}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
