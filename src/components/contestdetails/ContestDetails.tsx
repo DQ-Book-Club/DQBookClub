@@ -1,13 +1,13 @@
 import { ref, StorageReference } from "firebase/storage";
 import {
   collection,
+  CollectionReference,
   deleteDoc,
   doc,
-  onSnapshot,
+  DocumentReference,
   setDoc,
-  Unsubscribe,
 } from 'firebase/firestore'
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { auth, db, storage } from "../../services/firebaseServices";
 import './ContestDetails.css'
 import ContestSubmission from "../ContestSubmission";
@@ -17,125 +17,57 @@ import AdminControls from "../admin/AdminControls";
 import { Contest, ContestStatus, Rank, Submission, Vote } from "../constants/Constants";
 import ContestSubmissionResults from "../ContestSubmissionResults";
 import OpenContestDetails from "./OpenContestDetails";
+import { useSnapshot } from "../../hooks";
 
 type ContestDetailsProps = {
   contestId: string // The contest to show details for
   onExit: () => void
 }
 
-type ContestDetailsState = {
-  contest?: Contest
-  showViewer: boolean
-  activeViewerSubmission?: Submission
-  submissions?: Submission[]
-  selectedRank?: Rank
-  votes?: Vote[]
-}
+export default function ContestDetails(props: ContestDetailsProps) {
+  const [showViewer, setShowViewer] = useState(false)
+  const [activeViewerSubmission, setactiveViewerSubmission] = useState<Submission>()
+  const [selectedRank, setSelectedRank] = useState<Rank>()
+  const contest = useSnapshot(doc(db, 'contests', props.contestId) as DocumentReference<Contest>)
+  const submissions = useSnapshot(collection(db, 'contests', props.contestId, 'submissions') as CollectionReference<Submission>)
+  const votes = useSnapshot(collection(db, 'contests', props.contestId, 'votes') as CollectionReference<Vote>)
 
-export default class ContestDetails extends Component<ContestDetailsProps, ContestDetailsState> {
-  private userFolder: StorageReference 
-  private unsubscribeContest: Unsubscribe = () => { }
-  private unsubscribeSubmissions: Unsubscribe = () => { }
-  private unsubscribeVotes: Unsubscribe = () => { }
-
-  constructor(props: any) {
-    super(props)
-
-    this.state = { showViewer: false }
-    this.userFolder = ref(storage, auth.currentUser?.uid)
-
-    this.onRankClick = this.onRankClick.bind(this)
-    this.onClickSubmission = this.onClickSubmission.bind(this)
-    this.onResetVotesClick = this.onResetVotesClick.bind(this)
-    this.onSelectContestStatus = this.onSelectContestStatus.bind(this)
-  }
-
-  async componentDidMount(): Promise<void> {
-    this.unsubscribeContest = onSnapshot(
-      doc(db, 'contests', this.props.contestId),
-      (contest) => {
-        this.setState({ contest: { id: contest.id, ...contest.data()} as Contest })
-      }
+  function currentUserVotes(submissionId?: string) {
+    return votes?.filter(vote =>
+      submissionId ?
+      vote.submissionId === submissionId :
+      vote.userId === auth.currentUser!.uid
     )
-
-    this.unsubscribeSubmissions = onSnapshot(
-      collection(db, 'contests', this.props.contestId, 'submissions'),
-      (submissionDocs) => {
-        this.setState({
-          submissions: submissionDocs.docs.map(
-            (doc) => ({
-              submissionId: doc.id!,
-              userId: doc.id!,
-              ...doc.data()
-            } as Submission)
-          )
-        })
-      }
-    )
-
-    this.unsubscribeVotes = await onSnapshot(
-      collection(db, 'contests', this.props.contestId, 'votes'),
-      (votes) => {
-        this.setState({
-          votes: votes.docs.map(
-            (doc) => ({ voteId: doc.id!, ...doc.data() } as Vote)
-          )
-        })
-      }
-    )
-
   }
 
-  componentWillUnmount(): void {
-    this.unsubscribeContest()
-    this.unsubscribeSubmissions()
-    this.unsubscribeVotes()
-  }
-
-  currentUserVotes(submissionId?: string) {
-    var votes = this.state.votes?.filter(vote => vote.userId === auth.currentUser!.uid)
-
-    if (submissionId) {
-      votes = votes?.filter(vote => vote.submissionId === submissionId)
-    }
-
-    return votes
-  }
-
-  async onClickSubmission(submission: Submission) {
-    if (!this.state.selectedRank) {
-      this.setState({
-        showViewer: true,
-        activeViewerSubmission: submission
-      })
+  async function onClickSubmission(submission: Submission) {
+    if (!selectedRank) {
+      setShowViewer(true)
+      setactiveViewerSubmission(submission)
     } else {
-      if (!this.allowVote(submission)) {
+      if (!allowVote(submission)) {
         return
       }
 
-      const rank = this.state.selectedRank
-      const voteId = `${auth.currentUser!.uid}-${rank}`
+      const voteId = `${auth.currentUser!.uid}-${selectedRank}`
       await setDoc(
-        doc(db, "contests", this.props.contestId, "votes", voteId),
+        doc(db, "contests", props.contestId, "votes", voteId),
         {
-          rank,
-          submissionId: submission.submissionId,
+          selectedRank,
+          submissionId: submission.id,
           userId: auth.currentUser!.uid
         }
       )
-
-      this.setState({
-        selectedRank: undefined,
-      })
+      setSelectedRank(undefined)
     }
   }
 
-  allowVote(submission: Submission) {
-    if (submission.userId === auth.currentUser!.uid) {
+  function allowVote(submission: Submission) {
+    if (submission.id === auth.currentUser!.uid) {
       return false
     }
 
-    const myVote = this.currentUserVotes(submission.submissionId) ?? []
+    const myVote = currentUserVotes(submission.id) ?? []
     if (myVote.length > 0) {
       return false
     }
@@ -143,126 +75,124 @@ export default class ContestDetails extends Component<ContestDetailsProps, Conte
     return true
   }
 
-  async onRankClick(rank: Rank) {
-    this.setState({selectedRank: rank})
+  async function onRankClick(rank: Rank) {
+    setSelectedRank(rank)
   }
 
-  async onResetVotesClick() {
-    const votes = this.currentUserVotes()
+  async function onResetVotesClick() {
+    const votes = currentUserVotes()
     if (!votes) {
       return
     }
 
     for (const vote of votes) {
-      await deleteDoc(doc(db, "contests", this.props.contestId, "votes", vote.voteId));
+      await deleteDoc(doc(db, "contests", props.contestId, "votes", vote.id));
     }
 
-    this.setState({ selectedRank: undefined })
+    setSelectedRank(undefined)
   }
 
-  async onSelectContestStatus(contestStatus: ContestStatus) {
-    if (!this.state.contest) {
+  async function onSelectContestStatus(contestStatus: ContestStatus) {
+    if (!contest) {
       return
     }
 
     await setDoc(
-      doc(db, "contests", this.state.contest.id),
+      doc(db, "contests", contest.id),
       {
-        name: this.state.contest.name,
+        name: contest.name,
         status: contestStatus
       }
     )
   }
 
-  showPhotoDrawer(): boolean {
+  function showPhotoDrawer(): boolean {
     // Don't show the ContestSubmission component when the contest
     // is open because that is handled by OpenContestDetails
-    return this.state.contest?.status !== "open"
+    return contest?.status !== "open"
   }
 
-  showContestSubmission(submission: Submission): boolean {
+  function showContestSubmission(submission: Submission): boolean {
     // Don't show the ContestSubmission component when the contest
     // is open because that is handled by OpenContestDetails
-    return this.state.contest?.status !== "open"
+    return contest?.status !== "open"
   }
 
-  showImageInViewer(submission: Submission) {
-    return this.state.contest?.status !== "open" || submission.userId === auth.currentUser!.uid
+  function showImageInViewer(submission: Submission) {
+    return contest?.status !== "open" || submission.id === auth.currentUser!.uid
   }
 
-  render() {
-    var contestDetails;
-    switch (this.state.contest?.status) {
-      case "open":
-        contestDetails = <OpenContestDetails
-          contest={this.state.contest}
-          submissions={this.state.submissions}
-          onClickSubmission={this.onClickSubmission}
-        />
-    }
+  var contestDetails;
+  switch (contest?.status) {
+    case "open":
+      contestDetails = <OpenContestDetails
+        contest={contest}
+        submissions={submissions}
+        onClickSubmission={onClickSubmission}
+      />
+  }
 
-    const viewerSubmissions = this.state.submissions
-      ?.filter((submission) => this.showImageInViewer(submission))
-    const activeViewerIndex = viewerSubmissions?.findIndex(
-      (submission) => submission.submissionId === this.state.activeViewerSubmission?.submissionId
-    )
+  const viewerSubmissions = submissions
+    ?.filter((submission) => showImageInViewer(submission))
+  const activeViewerIndex = viewerSubmissions?.findIndex(
+    (submission) => submission.id === activeViewerSubmission?.id
+  )
 
-    return (
-      <div className="contest-details">
-        <div className="contest-title-container wide-flex-row">
-          <button className="back-button" onClick={this.props.onExit}>Back</button>
-          <h2>{this.state.contest?.name}</h2>
-          <AdminControls
-            contestStatus={this.state.contest?.status || 'open' }
-            onSelectContestStatus={this.onSelectContestStatus}
-            />
-        </div>
-
-        <Viewer
-          visible={this.state.showViewer}
-          onClose={() => this.setState({ showViewer: false })}
-          images={viewerSubmissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
-          activeIndex={activeViewerIndex}
-          attribute={false} showTotal={false} noImgDetails={true}
-          noToolbar={true} scalable={false} drag={true}
-        />
-
-        {contestDetails}
-
-        { this. showPhotoDrawer() && <div className="photo-drawer">
-            {this.state.submissions?.map(submission => (
-              <React.Fragment key={submission.submissionId}>
-                { this.showContestSubmission(submission) &&
-                  <ContestSubmission
-                    key={submission.submissionId}
-                    contest={this.state.contest!}
-                    rank={this.currentUserVotes(submission.submissionId)?.at(0)?.rank}
-                    submission={submission}
-                    onSubmissionClick={this.onClickSubmission}
-                  />
-                }
-                {
-                  this.state.contest?.status === "closed" &&
-                  <ContestSubmissionResults
-                    key={submission.submissionId + "results"}
-                    submissionId={submission.submissionId}
-                    votes={this.state.votes}
-                  />
-                }
-              </React.Fragment>
-            ))}
-          </div>
-        }
-
-        { this.state.contest?.status === "voting" && 
-          <ContestVotePanel
-            onRankClick={this.onRankClick}
-            onResetVotesClick={this.onResetVotesClick}
-            selectedRank={this.state.selectedRank}
-            votes={this.currentUserVotes()}
+  return (
+    <div className="contest-details">
+      <div className="contest-title-container wide-flex-row">
+        <button className="back-button" onClick={props.onExit}>Back</button>
+        <h2>{contest?.name}</h2>
+        <AdminControls
+          contestStatus={contest?.status || 'open' }
+          onSelectContestStatus={onSelectContestStatus}
           />
-        }
       </div>
-    )
-  }
+
+      <Viewer
+        visible={showViewer}
+        onClose={() => setShowViewer(false)}
+        images={viewerSubmissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
+        activeIndex={activeViewerIndex}
+        attribute={false} showTotal={false} noImgDetails={true}
+        noToolbar={true} scalable={false} drag={true}
+      />
+
+      {contestDetails}
+
+      { showPhotoDrawer() && <div className="photo-drawer">
+          {submissions?.map(submission => (
+            <React.Fragment key={submission.id}>
+              { showContestSubmission(submission) &&
+                <ContestSubmission
+                  key={submission.id}
+                  contest={contest!}
+                  rank={currentUserVotes(submission.id)?.at(0)?.rank}
+                  submission={submission}
+                  onSubmissionClick={onClickSubmission}
+                />
+              }
+              {
+                contest?.status === "closed" &&
+                <ContestSubmissionResults
+                  key={submission.id + "results"}
+                  submissionId={submission.id}
+                  votes={votes}
+                />
+              }
+            </React.Fragment>
+          ))}
+        </div>
+      }
+
+      { contest?.status === "voting" && 
+        <ContestVotePanel
+          onRankClick={onRankClick}
+          onResetVotesClick={onResetVotesClick}
+          selectedRank={selectedRank}
+          votes={currentUserVotes()}
+        />
+      }
+    </div>
+  )
 }

@@ -28,12 +28,11 @@ export type Contest = {
 
 export type Submission = {
   imageUrl: string
-  submissionId: string
-  userId: string
+  id: string // sumission ID === submitting user's ID
 }
 
 export type Vote = {
-  voteId: string
+  id: string
   rank: Rank
   submissionId: string
   userId: string
