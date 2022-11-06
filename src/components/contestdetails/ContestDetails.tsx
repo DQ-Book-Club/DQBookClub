@@ -6,17 +6,15 @@ import {
   DocumentReference,
   setDoc,
 } from 'firebase/firestore'
-import React, { useState } from "react";
+import { useState } from "react";
 import { auth, db } from "../../services/firebaseServices";
 import './ContestDetails.css'
-import ContestSubmission from "../ContestSubmission";
 import AdminControls from "../admin/AdminControls";
 import { Contest, ContestStatus, Rank, Submission, Vote } from "../constants/Constants";
-import ContestSubmissionResults from "../ContestSubmissionResults";
 import OpenContestDetails from "./OpenContestDetails";
 import { useSnapshot } from "../../hooks";
 import VotingContestDetails from "./VotingContestDetails";
-import ContestViewer from "../ContestViewer";
+import ClosedContestDetails from './ClosedContestDetails';
 
 type ContestDetailsProps = {
   contestId: string // The contest to show details for
@@ -106,18 +104,6 @@ export default function ContestDetails(props: ContestDetailsProps) {
     )
   }
 
-  function showContestViewer(): boolean {
-    return contest?.status === "closed"
-  }
-
-  function showPhotoDrawer(): boolean {
-    return contest?.status === "closed"
-  }
-
-  function showContestSubmission(submission: Submission): boolean {
-    return contest?.status === "closed"
-  }
-
   const onCloseViewer = () => setShowViewer(false)
   var contestDetails;
   switch (contest?.status) {
@@ -145,12 +131,19 @@ export default function ContestDetails(props: ContestDetailsProps) {
         activeViewerSubmission={activeViewerSubmission}
       />
       break
+    case "closed":
+      contestDetails = <ClosedContestDetails
+        contest={contest}
+        submissions={submissions}
+        votes={votes}
+        onClickSubmission={onClickSubmission}
+        currentUserVotes={currentUserVotes}
+        showViewer={showViewer}
+        onCloseViewer={onCloseViewer}
+        activeViewerSubmission={activeViewerSubmission}
+      />
+      break
   }
-
-  const viewerSubmissions = submissions
-  const activeViewerIndex = viewerSubmissions?.findIndex(
-    (submission) => submission.id === activeViewerSubmission?.id
-  )
 
   return (
     <div className="contest-details">
@@ -163,40 +156,7 @@ export default function ContestDetails(props: ContestDetailsProps) {
           />
       </div>
 
-      { showContestViewer() && <ContestViewer
-          showViewer={showViewer}
-          onClose={() => setShowViewer(false)}
-          images={viewerSubmissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
-          activeIndex={activeViewerIndex}
-        />
-      }
-
       {contestDetails}
-
-      { showPhotoDrawer() && <div className="photo-drawer">
-          {submissions?.map(submission => (
-            <React.Fragment key={submission.id}>
-              { showContestSubmission(submission) &&
-                <ContestSubmission
-                  key={submission.id}
-                  contest={contest!}
-                  rank={currentUserVotes(submission.id)?.at(0)?.rank}
-                  submission={submission}
-                  onSubmissionClick={onClickSubmission}
-                />
-              }
-              {
-                contest?.status === "closed" &&
-                <ContestSubmissionResults
-                  key={submission.id + "results"}
-                  submissionId={submission.id}
-                  votes={votes}
-                />
-              }
-            </React.Fragment>
-          ))}
-        </div>
-      }
     </div>
   )
 }
