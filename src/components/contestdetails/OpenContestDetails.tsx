@@ -6,11 +6,14 @@ import ContestSubmission from "../ContestSubmission";
 import ImageUploadButton from "../UploadButton";
 import { Contest, Submission } from "../constants/Constants";
 import { doc, setDoc } from "firebase/firestore";
+import ContestViewer from "../ContestViewer";
 
 type OpenContestDetailsProps = {
   contest: Contest
   submissions?: Submission[]
   onClickSubmission: (submission: Submission) => void
+  showViewer: boolean
+  onCloseViewer: () => void
 }
 
 export default function OpenContestDetails(props: OpenContestDetailsProps) {
@@ -35,6 +38,14 @@ export default function OpenContestDetails(props: OpenContestDetailsProps) {
 
   return (
     <React.Fragment>
+      { submission && <ContestViewer
+          showViewer={props.showViewer}
+          onClose={props.onCloseViewer}
+          images={[{ src: submission!.imageUrl }]}
+          activeIndex={0}
+        />
+      }
+
       <div className="photo-drawer">
       { submission &&
         <ContestSubmission
