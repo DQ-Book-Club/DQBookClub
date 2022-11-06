@@ -1,4 +1,3 @@
-import { ref, StorageReference } from "firebase/storage";
 import {
   collection,
   CollectionReference,
@@ -8,16 +7,16 @@ import {
   setDoc,
 } from 'firebase/firestore'
 import React, { useState } from "react";
-import { auth, db, storage } from "../../services/firebaseServices";
+import { auth, db } from "../../services/firebaseServices";
 import './ContestDetails.css'
 import ContestSubmission from "../ContestSubmission";
-import ContestVotePanel from "../ContestVotePanel";
-import Viewer from "react-viewer";
 import AdminControls from "../admin/AdminControls";
 import { Contest, ContestStatus, Rank, Submission, Vote } from "../constants/Constants";
 import ContestSubmissionResults from "../ContestSubmissionResults";
 import OpenContestDetails from "./OpenContestDetails";
 import { useSnapshot } from "../../hooks";
+import VotingContestDetails from "./VotingContestDetails";
+import ContestViewer from "../ContestViewer";
 
 type ContestDetailsProps = {
   contestId: string // The contest to show details for
@@ -107,22 +106,19 @@ export default function ContestDetails(props: ContestDetailsProps) {
     )
   }
 
+  function showContestViewer(): boolean {
+    return contest?.status === "closed"
+  }
+
   function showPhotoDrawer(): boolean {
-    // Don't show the ContestSubmission component when the contest
-    // is open because that is handled by OpenContestDetails
-    return contest?.status !== "open"
+    return contest?.status === "closed"
   }
 
   function showContestSubmission(submission: Submission): boolean {
-    // Don't show the ContestSubmission component when the contest
-    // is open because that is handled by OpenContestDetails
-    return contest?.status !== "open"
+    return contest?.status === "closed"
   }
 
-  function showImageInViewer(submission: Submission) {
-    return contest?.status !== "open" || submission.id === auth.currentUser!.uid
-  }
-
+  const onCloseViewer = () => setShowViewer(false)
   var contestDetails;
   switch (contest?.status) {
     case "open":
@@ -130,11 +126,28 @@ export default function ContestDetails(props: ContestDetailsProps) {
         contest={contest}
         submissions={submissions}
         onClickSubmission={onClickSubmission}
+        showViewer={showViewer}
+        onCloseViewer={onCloseViewer}
       />
+      break
+    case "voting":
+      contestDetails = <VotingContestDetails
+        contest={contest}
+        submissions={submissions}
+        currentUserVotes={currentUserVotes}
+        onClickSubmission={onClickSubmission}
+        onRankClick={onRankClick}
+        onResetVotesClick={onResetVotesClick}
+        selectedRank={selectedRank}
+        votes={currentUserVotes()}
+        showViewer={showViewer}
+        onCloseViewer={onCloseViewer}
+        activeViewerSubmission={activeViewerSubmission}
+      />
+      break
   }
 
   const viewerSubmissions = submissions
-    ?.filter((submission) => showImageInViewer(submission))
   const activeViewerIndex = viewerSubmissions?.findIndex(
     (submission) => submission.id === activeViewerSubmission?.id
   )
@@ -150,14 +163,13 @@ export default function ContestDetails(props: ContestDetailsProps) {
           />
       </div>
 
-      <Viewer
-        visible={showViewer}
-        onClose={() => setShowViewer(false)}
-        images={viewerSubmissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
-        activeIndex={activeViewerIndex}
-        attribute={false} showTotal={false} noImgDetails={true}
-        noToolbar={true} scalable={false} drag={true}
-      />
+      { showContestViewer() && <ContestViewer
+          showViewer={showViewer}
+          onClose={() => setShowViewer(false)}
+          images={viewerSubmissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
+          activeIndex={activeViewerIndex}
+        />
+      }
 
       {contestDetails}
 
@@ -184,15 +196,6 @@ export default function ContestDetails(props: ContestDetailsProps) {
             </React.Fragment>
           ))}
         </div>
-      }
-
-      { contest?.status === "voting" && 
-        <ContestVotePanel
-          onRankClick={onRankClick}
-          onResetVotesClick={onResetVotesClick}
-          selectedRank={selectedRank}
-          votes={currentUserVotes()}
-        />
       }
     </div>
   )
