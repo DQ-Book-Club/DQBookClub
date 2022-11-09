@@ -33,11 +33,12 @@ export default function ContestDetails(props: ContestDetailsProps) {
   const votes = useSnapshot(collection(db, 'contests', props.contestId, 'votes') as CollectionReference<Vote>)
 
   function currentUserVotes(submissionId?: string) {
-    return votes?.filter(vote =>
-      submissionId ?
-      vote.submissionId === submissionId :
-      vote.userId === auth.currentUser!.uid
-    )
+    let result = votes?.filter(vote => vote.userId === auth.currentUser!.uid)
+
+    if (submissionId) {
+      result = result?.filter(vote => vote.submissionId === submissionId)
+    }
+    return result
   }
 
   async function onClickSubmission(submission: Submission) {
@@ -53,7 +54,7 @@ export default function ContestDetails(props: ContestDetailsProps) {
       await setDoc(
         doc(db, "contests", props.contestId, "votes", voteId),
         {
-          selectedRank,
+          rank: selectedRank,
           submissionId: submission.id,
           userId: auth.currentUser!.uid
         }
