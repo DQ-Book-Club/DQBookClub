@@ -21,7 +21,7 @@ export default function ContestSubmission(props: ContestSubmissionProps) {
       className="contest-submission"
       onClick={() => props.onSubmissionClick(props.submission)}
     >
-      <img key={props.submission.submissionId} src={props.submission.imageUrl}
+      <img key={props.submission.id} src={props.submission.imageUrl}
         className={getSubmissionImgClass()}  />
     </div>
   )

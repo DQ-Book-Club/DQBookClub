@@ -1,21 +1,17 @@
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, CollectionReference } from "firebase/firestore";
 import { db } from "../services/firebaseServices";
 import ContestDetails from "./contestdetails/ContestDetails";
 import ContestList from "./ContestList";
 import { Contest } from "./constants/Constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useSnapshot } from "../hooks";
 
 export default function ContestNavigator() {
-  const [contests, setContests] = useState<Contest[]>([])
   const [activeContestId, setActiveContestId] = useState<string>()
-
-  useEffect(() => onSnapshot(
-    collection(db, 'contests'),
-    (contests) => setContests(contests.docs.map(doc => ({ id: doc.id, ...doc.data() } as Contest)))
-  ), [])
+  const contests = useSnapshot(collection(db, 'contests') as CollectionReference<Contest>)
 
   if (!activeContestId) {
-    return <ContestList contests={contests} onSelectContest={setActiveContestId} />
+    return <ContestList contests={contests ?? []} onSelectContest={setActiveContestId} />
   } else {
     return <ContestDetails
       contestId={activeContestId}
