@@ -1,5 +1,6 @@
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import React, { ChangeEvent, useState } from "react";
+import imageCompression from 'browser-image-compression';
 import { auth, db, storage } from "../../services/firebaseServices";
 import './ContestDetails.css'
 import ContestSubmission from "../ContestSubmission";
@@ -24,15 +25,18 @@ export default function OpenContestDetails(props: OpenContestDetailsProps) {
 
   async function submitToContest(event: ChangeEvent<HTMLInputElement>) {
     if (!event.target.files || event.target.files.length !== 1) return
-    
-    setUploadPhase('Uploading...')
+
+    setUploadPhase('Compressing...')
     setUploadProgress(0)
     const file = event.target.files[0]
+    const compressedFile = await imageCompression(file, { maxSizeMB: 2, onProgress: (num) => setUploadProgress(num/100) })
+    
+    setUploadPhase('Uploading...')
     const fileRef = ref(userFolder, props.contest.id)
-    const uploadTask = uploadBytesResumable(fileRef, file)
+    const uploadTask = uploadBytesResumable(fileRef, compressedFile)
 
     uploadTask.on('state_changed',
-      (snapshot) => setUploadProgress(snapshot.bytesTransferred / snapshot.totalBytes),
+      (snapshot) => setUploadProgress(snapshot.bytesTransferred / snapshot.totalBytes), // 
       (err) => { setUploadProgress(undefined); throw err },
       async () => {
         setUploadPhase('Updating your submission...')
