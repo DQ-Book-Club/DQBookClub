@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "akar-icons": "^1.9.21",
+    "browser-image-compression": "^2.0.0",
     "firebase": "^9.12.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
