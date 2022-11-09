@@ -15,8 +15,8 @@ export default function ImageUploadButton(props: ImageUploadButtonProps) {
   }
 
   return (<>
-    {!props.progress && <button className="upload-button" onClick={handleClick}>Upload</button>}
-    {!!props.progress && <>
+    {typeof props.progress !== "number" && <button className="upload-button" onClick={handleClick}>Upload</button>}
+    {typeof props.progress === "number" && <>
       <label htmlFor="upload-progress">{props.progressText}</label>
       <progress id="upload-progress" className="btn" value={props.progress} max="1"></progress>
     </>}
