@@ -4,7 +4,7 @@ import { Contest, Rank, Submission, Vote } from "../constants/Constants"
 import ContestSubmission from "../ContestSubmission"
 import ContestViewer from "../ContestViewer"
 import ContestVotePanel from "../ContestVotePanel"
-import { hashCode, random } from "../random/Random"
+import { hashCode, random } from "../utils/random"
 
 type VotingContestDetailsProps = {
   contest: Contest
