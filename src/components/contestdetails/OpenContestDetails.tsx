@@ -1,4 +1,10 @@
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import {
+  getDownloadURL,
+  ref,
+  StorageReference,
+  updateMetadata,
+  uploadBytesResumable
+} from "firebase/storage";
 import React, { ChangeEvent, useState } from "react";
 import imageCompression from 'browser-image-compression';
 import { auth, db, storage } from "../../services/firebaseServices";
@@ -43,6 +49,10 @@ export default function OpenContestDetails(props: OpenContestDetailsProps) {
       (err) => { setUploadProgress(undefined); throw err },
       async () => {
         setUploadPhase('Updating your submission...')
+        // Set the cache control metadata before setting the doc since setting the doc will
+        // trigger the useSnapshot hook which downloads the image. We'd like the image to be
+        // downloaded with the cache control HTTP header so the image is cached.
+        updateCacheControlMetadata(fileRef)
         const imageUrl = await getDownloadURL(uploadTask.snapshot.ref)
         await setDoc(
           doc(db, "contests", props.contest.id, "submissions", auth.currentUser!.uid),
@@ -51,6 +61,14 @@ export default function OpenContestDetails(props: OpenContestDetailsProps) {
         setUploadProgress(undefined)
       }
     )
+  }
+
+  async function updateCacheControlMetadata(storageRef: StorageReference) {
+    const metadata = {
+      cacheControl: "private,max-age=3600",
+    }
+
+    await updateMetadata(storageRef, metadata)
   }
 
   return (
