@@ -132,6 +132,7 @@ export default function ContestDetails(props: ContestDetailsProps) {
       />
       break
     case "closed":
+    case "past":
       contestDetails = <ClosedContestDetails
         contest={contest}
         submissions={submissions}

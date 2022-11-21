@@ -1,7 +1,8 @@
 export const CONTEST_STATUS = [
   "open",
   "voting",
-  "closed"
+  "closed",
+  "past",
 ] as const
 
 export type ContestStatus = typeof CONTEST_STATUS[number]
