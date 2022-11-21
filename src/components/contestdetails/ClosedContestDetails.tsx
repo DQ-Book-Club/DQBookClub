@@ -52,7 +52,7 @@ export default function ClosedContestDetails(props: ClosedContestDetailsProps) {
       <ContestViewer
         showViewer={props.showViewer}
         onClose={props.onCloseViewer}
-        images={props.submissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
+        images={submissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
         activeIndex={activeViewerIndex}
       />
       <div className="photo-drawer">
