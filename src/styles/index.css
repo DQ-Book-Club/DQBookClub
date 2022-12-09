@@ -36,11 +36,25 @@ a:hover {
 
 body {
   margin: 0;
-  padding-top: 2rem;
+  padding-top: 4rem;
   display: flex;
 
   min-width: 320px;
   min-height: 100vh;
+}
+
+#__next {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem 1rem 1rem;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 button, .btn {
@@ -80,5 +94,33 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  a {
+    color: #213547;
+  }
+
+  .akar-icon {
+    color: #213547;
+  }
+
+  nav {
+    background-color: #EEE;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  a {
+    color: #E6E6E6;
+  }
+
+  .akar-icon {
+    color: #E6E6E6;
+  }
+
+  nav {
+    background-color: #323232;
   }
 }

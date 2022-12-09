@@ -1,16 +1,24 @@
-import {FormEvent, useState} from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/router";
+import { FormEvent, useState } from "react";
+import { useAuth } from "reactfire";
 
-type LoginFormProps = {
-  handleSubmit: (email: string, password: string) => void
-}
-
-export default function LoginForm(props: LoginFormProps) {
+export default function Login() {
+  const auth = useAuth()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  const { redirectTo } = router.query
+    
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    props.handleSubmit(email!, password!)
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      router.push(typeof redirectTo === 'string' ? redirectTo : '/')
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (

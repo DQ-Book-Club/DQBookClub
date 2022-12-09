@@ -7,13 +7,13 @@ import {
 } from "firebase/storage";
 import React, { ChangeEvent, useState } from "react";
 import imageCompression from 'browser-image-compression';
-import { auth, db, storage } from "../../services/firebaseServices";
-import './ContestDetails.css'
+import styles from './ContestDetails.module.css';
 import ContestSubmission from "../ContestSubmission";
 import ImageUploadButton from "../UploadButton";
 import { Contest, Submission } from "../constants/Constants";
 import { doc, setDoc } from "firebase/firestore";
 import ContestViewer from "../ContestViewer";
+import { useAuth, useFirestore, useStorage } from "reactfire";
 
 type OpenContestDetailsProps = {
   contest: Contest
@@ -24,6 +24,9 @@ type OpenContestDetailsProps = {
 }
 
 export default function OpenContestDetails(props: OpenContestDetailsProps) {
+  const auth = useAuth()
+  const storage = useStorage()
+  const db = useFirestore()
   const userFolder = ref(storage, auth.currentUser?.uid)
   const [uploadPhase, setUploadPhase] = useState<string | undefined>()
   const [uploadProgress, setUploadProgress] = useState<number | undefined>()
@@ -81,7 +84,7 @@ export default function OpenContestDetails(props: OpenContestDetailsProps) {
         />
       }
 
-      <div className="photo-drawer">
+      <div className={styles.photoDrawer}>
       { submission &&
         <ContestSubmission
           key={submission.id}

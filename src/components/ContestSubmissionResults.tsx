@@ -1,7 +1,6 @@
 import { Trophy } from "akar-icons";
-import { Component } from "react";
 import { RANKS, RANK_COLORS, Vote } from "./constants/Constants";
-import "./ContestSubmissionResults.css"
+import styles from './contestdetails/ContestDetails.module.css'
 
 type ContestSubmissionResultsProps = {
   submissionId: string
@@ -22,7 +21,7 @@ export default function ContestSubmissionResults(props: ContestSubmissionResults
   }
 
   return (
-    <div>
+    <div className={styles.photoDrawerDiv}>
       <div className="submission-results wide-flex-row">
         {RANKS.map((rank) =>
           <div className={rank + "Trophy "} key={rank}>

@@ -1,5 +1,6 @@
 import React from "react"
 import { Contest, Rank, Submission, Vote } from "../constants/Constants"
+import styles from './ContestDetails.module.css'
 import ContestSubmission from "../ContestSubmission"
 import ContestSubmissionResults from "../ContestSubmissionResults"
 import ContestViewer from "../ContestViewer"
@@ -55,7 +56,7 @@ export default function ClosedContestDetails(props: ClosedContestDetailsProps) {
         images={submissions?.map(({ imageUrl }) => ({ src: imageUrl }))}
         activeIndex={activeViewerIndex}
       />
-      <div className="photo-drawer">
+      <div className={styles.photoDrawer}>
         { submissions?.map(submission => (
           <React.Fragment key={submission.id}>
             <ContestSubmission

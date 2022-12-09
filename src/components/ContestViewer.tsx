@@ -1,4 +1,4 @@
-import Viewer from "react-viewer"
+import dynamic from 'next/dynamic'
 
 type ContestViewerProps = {
   onClose: () => void
@@ -7,9 +7,16 @@ type ContestViewerProps = {
   showViewer: boolean
 }
 
+// https://github.com/infeng/react-viewer#server-side-nextjs
+const ReactViewer = dynamic(
+  () => import('react-viewer'),
+  { ssr: false }
+)
+
+
 export default function ContestViewer(props: ContestViewerProps) {
   return (
-    <Viewer
+    <ReactViewer
       visible={props.showViewer}
       onClose={props.onClose}
       images={props.images}

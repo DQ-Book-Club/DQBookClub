@@ -1,4 +1,10 @@
-.contest-list {
+.contestListContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.contestList {
   display: flex;
   flex-wrap: wrap;
   padding: 1rem 0;
@@ -11,11 +17,11 @@
   margin-bottom: 1rem;
 }
 
-.contest-details details summary {
+.contestDetailsSummary {
   cursor: pointer;
   text-align: left;
 }
 
-.contest-details details summary > * {
+.contestDetailsTitle {
   display: inline;
 }

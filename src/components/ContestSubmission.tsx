@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { Contest, Rank, Submission } from "./constants/Constants";
-import "./ContestSubmission.css"
+import styles from './contestdetails/ContestDetails.module.css'
 
 type ContestSubmissionProps = {
   contest: Contest
@@ -17,12 +17,9 @@ export default function ContestSubmission(props: ContestSubmissionProps) {
   }
 
   return (
-    <div
-      className="contest-submission"
-      onClick={() => props.onSubmissionClick(props.submission)}
-    >
+    <div className={styles.photoDrawerDiv} onClick={() => props.onSubmissionClick(props.submission)}>
       <img key={props.submission.id} src={props.submission.imageUrl}
-        className={getSubmissionImgClass()}  />
+        className={getSubmissionImgClass() + ' ' + styles.photoDrawerImg}  />
     </div>
   )
 }

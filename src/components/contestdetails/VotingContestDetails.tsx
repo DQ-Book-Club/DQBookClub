@@ -1,10 +1,11 @@
 import React from "react"
-import { auth } from "../../services/firebaseServices"
+import { useAuth } from "reactfire"
 import { Contest, Rank, Submission, Vote } from "../constants/Constants"
 import ContestSubmission from "../ContestSubmission"
 import ContestViewer from "../ContestViewer"
 import ContestVotePanel from "../ContestVotePanel"
 import { hashCode, random } from "../utils/random"
+import styles from './ContestDetails.module.css';
 
 type VotingContestDetailsProps = {
   contest: Contest
@@ -56,6 +57,7 @@ function shuffleSubmissions(
 }
 
 export default function VotingContestDetails(props: VotingContestDetailsProps) {
+  const auth = useAuth();
   const submissions = shuffleSubmissions(props.submissions, auth.currentUser!.uid, props.contest.id)
   const activeViewerIndex = submissions.indexOf(props.activeViewerSubmission!)
 
@@ -68,7 +70,7 @@ export default function VotingContestDetails(props: VotingContestDetailsProps) {
         activeIndex={activeViewerIndex}
       />
 
-      <div className="photo-drawer">
+      <div className={styles.photoDrawer}>
         { submissions?.map(submission => (
             <ContestSubmission
               key={submission.id}

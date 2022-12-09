@@ -1,6 +1,5 @@
 import { Trophy } from "akar-icons";
 import { Rank, RANKS, RANK_COLORS, Vote } from "./constants/Constants";
-import './ContestVotePanel.css';
 
 type ContestVotePanelProps = {
   onRankClick: (rank: Rank) => void | Promise<void>

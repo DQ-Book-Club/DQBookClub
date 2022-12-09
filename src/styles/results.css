@@ -1,0 +1,52 @@
+.contest-vote-panel {
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.contest-vote-panel .trophy:not(.selected) {
+  background-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  .contest-vote-panel {
+      background: #333;
+  }
+}
+@media (prefers-color-scheme: light) {
+  .contest-vote-panel {
+      background: #ddd;
+  }
+}
+
+img.gold {
+  box-shadow: rgba(255, 215, 0, 0.6) 2px 10px 9px;
+}
+
+img.silver {
+  box-shadow: rgba(175, 175, 175, 0.6) 2px 10px 9px;
+}
+
+img.bronze {
+  box-shadow: rgba(205, 127, 50, 0.6) 2px 10px 9px;
+}
+
+.submission-results {
+  padding: 1rem;
+  border-radius: 8px;
+  height: 80px;
+}
+
+.contest-results {
+  font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+  .submission-results {
+      background: #333;
+  }
+}
+@media (prefers-color-scheme: light) {
+  .submission-results {
+      background: #ddd;
+  }
+}

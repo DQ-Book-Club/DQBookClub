@@ -7,14 +7,14 @@ import {
   setDoc,
 } from 'firebase/firestore'
 import { useState } from "react";
-import { auth, db } from "../../services/firebaseServices";
-import './ContestDetails.css'
+import styles from './ContestDetails.module.css'
 import AdminControls from "../admin/AdminControls";
 import { Contest, ContestStatus, Rank, Submission, Vote } from "../constants/Constants";
 import OpenContestDetails from "./OpenContestDetails";
 import { useSnapshot } from "../../hooks";
 import VotingContestDetails from "./VotingContestDetails";
 import ClosedContestDetails from './ClosedContestDetails';
+import { useAuth, useFirestore } from 'reactfire';
 
 type ContestDetailsProps = {
   contestId: string // The contest to show details for
@@ -25,6 +25,8 @@ export default function ContestDetails(props: ContestDetailsProps) {
   const [showViewer, setShowViewer] = useState(false)
   const [activeViewerSubmission, setactiveViewerSubmission] = useState<Submission>()
   const [selectedRank, setSelectedRank] = useState<Rank>()
+  const auth = useAuth()
+  const db = useFirestore()
   const contest = useSnapshot(doc(db, 'contests', props.contestId) as DocumentReference<Contest>)
   const submissions = useSnapshot(collection(db, 'contests', props.contestId, 'submissions') as CollectionReference<Submission>)
   const votes = useSnapshot(collection(db, 'contests', props.contestId, 'votes') as CollectionReference<Vote>)
@@ -147,9 +149,9 @@ export default function ContestDetails(props: ContestDetailsProps) {
   }
 
   return (
-    <div className="contest-details">
-      <div className="contest-title-container wide-flex-row">
-        <button className="back-button" onClick={props.onExit}>Back</button>
+    <div className={styles.contestDetails}>
+      <div className="wide-flex-row">
+        <button onClick={props.onExit}>Back</button>
         <h2>{contest?.name}</h2>
         <AdminControls
           contestStatus={contest?.status || 'open' }

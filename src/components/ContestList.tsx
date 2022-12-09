@@ -1,6 +1,5 @@
-import { Component } from 'react';
 import { Contest, ContestStatus, CONTEST_STATUS } from './constants/Constants';
-import './ContestList.css'
+import styles from './ContestList.module.css'
 
 const CLOSED_DETAILS_CONTEST_STATUS = [
   "past"
@@ -15,7 +14,7 @@ export default function ContestList(props: ContestListProps) {
   function renderContestButton(contest: Contest) {
     return (
       <button
-        className="contest"
+        className={styles.contest}
         onClick={(event) => props.onSelectContest(contest.id)}
         key={contest.id}
       >
@@ -27,10 +26,10 @@ export default function ContestList(props: ContestListProps) {
   function renderDetails(contests: Contest[], status: ContestStatus) {
     return (
       <details open={!CLOSED_DETAILS_CONTEST_STATUS.includes(status)} key={status + "details"}>
-        <summary key={status + "summary"} className="summary">
-          <h3>{capitalize(status)}</h3>
+        <summary key={status + "summary"} className={styles.contestDetailsSummary}>
+          <h3 className={styles.contestDetailsTitle}>{capitalize(status)}</h3>
         </summary>
-        <div className="contest-list" key={status + "div"}>
+        <div className={styles.contestList} key={status + "div"}>
           {contests.map(contest => renderContestButton(contest))}
         </div>
       </details>
@@ -50,7 +49,7 @@ export default function ContestList(props: ContestListProps) {
   }
 
   return (
-    <div className="contest-details">
+    <div className={styles.contestListContainer}>
       {CONTEST_STATUS.map(status => (
         contestsByStatus[status] && renderDetails(contestsByStatus[status]!, status)
       ))
