@@ -14,9 +14,10 @@ const firebaseConfig = {
   projectId: "dq-book-club",
   storageBucket: "dq-book-club.appspot.com",
   messagingSenderId: "913597315006",
-  appId: "1:913597315006:web:64b36eed5e1cc5eba7abef",
-  measurementId: "G-1DF5TZ1B21"
+  appId: "1:913597315006:web:c449d0892b9b731ea7abef",
+  measurementId: "G-3ZVZ2QLFHT"
 };
+
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
