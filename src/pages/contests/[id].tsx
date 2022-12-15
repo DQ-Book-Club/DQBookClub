@@ -1,4 +1,5 @@
 import { useRouter } from "next/router"
+import { useEffect } from "react"
 import ContestDetails from "../../components/contestdetails/ContestDetails"
 
 export default function Contest() {
@@ -8,9 +9,11 @@ export default function Contest() {
     router.push('/')
   }
 
-  if (typeof id !== 'string') {
-    navigateHome();
-  } else {
-    return <ContestDetails contestId={id} onExit={navigateHome}></ContestDetails>
-  }
+  useEffect(() => {
+    if (typeof id !== 'string') {
+      navigateHome();
+    }
+  }, [])
+
+  return typeof id !== 'string' ? <></> : <ContestDetails contestId={id as string} onExit={navigateHome}></ContestDetails>
 }
