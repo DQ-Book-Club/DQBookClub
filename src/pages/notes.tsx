@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./notes.css" />
-    <title>DQ Book Club</title>
-  </head>
-  <body>
-    <div class="main">
-      <nav>
-        <a class="home-btn" href="/"><img src="/home.svg" /></a>
-      </nav>
-      
+import { NextPage } from "next"
+
+const NotesPage: NextPage = ({ }) => (
+  <div className="main">
       <h1>iPhone Photography</h1>
 
       <progress max="12" value="6"></progress>
 
-      <div class="current-assignment">
+      <div className="current-assignment">
         <b>The current assignment is:</b>
         <div>A cityscape</div>
         <div>A food pic</div>
@@ -58,7 +48,7 @@
           <li><strong>Add perspective.</strong> Low angles make things look bigger, while high angles makethings look smaller.</li>
           <li><strong>Leading lines</strong> are lines in your image that lead the eye to the subject.</li>
           <li>Avoid bright spots in the background.</li>
-          <li>Use the <strong>rule of thirds.</strong> Need help? Turn it on with <em>Settings > Camera > Composition > Grid.</em></li>
+          <li>Use the <strong>rule of thirds.</strong> Need help? Turn it on with <em>Settings &gt; Camera &gt; Composition &gt; Grid.</em></li>
           <li><strong>Get closer to your subject.</strong> Fill the frame with your subject.</li>
           <li>
             With cityscapes, landscapes, and other scenic views, create layers to add depth to your photo 
@@ -150,9 +140,9 @@
             <br /><strong>Don't miss the moment.</strong> You can always fix the composition later.</li>
           <li>Go on a 2 hour tour of the city and take photosof places you want to return to (this is called <strong>Location scouting</strong>).
           You can see the GPS coordinates of your photos in the Photos app. <br />
-          Turn this feature on in <code>Settings > Privacy > Location Services</code> scroll to <code>Camera</code> and choose <code>While Using the App</code></li>
+          Turn this feature on in <code>Settings {">"} Privacy {">"} Location Services</code> scroll to <code>Camera</code> and choose <code>While Using the App</code></li>
           <li><strong>Rule of thirds for horizon lines</strong>: put the horizon on the bottom third line or the top third line depending on whether the sky or foreground is more interesting.
-          <br />Turn on the grid with <code>Settings > Camera > Grid</code></li>
+          <br />Turn on the grid with <code>Settings {">"} Camera {">"} Grid</code></li>
           <li>Do your research ahead of time! Use <a href="https://500px.com/">500px</a> and <a href="https://www.pinterest.com/">Pinterest</a> are two recommended sites.</li>
           <li>You only get good reflections in water when there's no wind. There's no wind at dawn!</li>
           <li>The best way to show size and scale of your subject is to put something in the scene next to it.</li>
@@ -191,12 +181,12 @@
             </ol>
           </li>
           <li>
-            When shooting <stong>architechture</stong>:
+            When shooting <strong>architechture</strong>:
             <ul>
               <li>try aiming your camera straight up toward the tops of the buildings</li>
               <li>If you can find a spot where three or four buildings are in close proximity, this will look even better.</li>
-              <li>you don’t have to show the entire building in the shot and, in fact, I usually find it more interesting to show just an interesting portion of a building than to try to get the whole thing in the frame. </li>
-              <li>when it comes to architecture, it’s like nearly every other genre of photography—it looks better in great light. So, if you shoot early in the morning and late in the day, the light will look better and so will your shots.</li>
+              <li>you don't have to show the entire building in the shot and, in fact, I usually find it more interesting to show just an interesting portion of a building than to try to get the whole thing in the frame. </li>
+              <li>when it comes to architecture, it's like nearly every other genre of photography—it looks better in great light. So, if you shoot early in the morning and late in the day, the light will look better and so will your shots.</li>
             </ul>
           </li>
           <li>Tips for <strong>Sports Pictures</strong>:
@@ -215,10 +205,11 @@
               <li>keep your scene simple. Don't put too much into your scene, and don't let it get cluttered with too many items</li>
             </ul>
           </li>
-          <li>Do you have Smart HDR on? Check in <code>Settings > Camera > Smart HDR</code>. HDR takes 3 photos and stitches with different exposures, then stitches them together to get high dynamic range.
+          <li>Do you have Smart HDR on? Check in <code>Settings &gt; Camera &gt; Smart HDR</code>. HDR takes 3 photos and stitches with different exposures, then stitches them together to get high dynamic range.
           <br/> If you have Smart HDR off, you can toggle HDR on and off in the camera app.</li>
         </ul>
       </details>
     </div>
-  </body>
-</html>
+)
+
+export default NotesPage;
