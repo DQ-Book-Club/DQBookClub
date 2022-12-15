@@ -7,6 +7,7 @@ import FirebaseProviders from '../components/FirebaseProviders';
 import NavigationBar from '../components/nav/NavigationBar';
 import '../styles/index.css'
 import '../styles/results.css'
+import 'yet-another-react-lightbox/styles.css'
 
 const firebaseConfig = {
   apiKey: "AIzaSyCy7sbXnjCwYv3Nl_oLRX_VCHCJQqhURs0",
